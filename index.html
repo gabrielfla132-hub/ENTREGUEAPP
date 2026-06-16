@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="description" content="ENTREGUE — O app de entregas mais rápido do Brasil. Envie e receba com segurança.">
+<meta name="theme-color" content="#00C26B">
+<meta property="og:title" content="ENTREGUE — App de Entregas">
+<meta property="og:description" content="Envie e receba com segurança e rapidez.">
+<meta property="og:type" content="website">
+<title>📦 ENTREGUE — App de Entregas</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  :root {
+    --green:#00C26B; --green2:#00A857; --green3:#e6f9f1;
+    --bg:#F5F7FA; --card:#FFFFFF; --text:#1A1D23; --sub:#6B7280;
+    --border:#E5E7EB; --shadow:0 2px 16px rgba(0,0,0,.08);
+    --danger:#EF4444; --warn:#F59E0B; --info:#3B82F6;
+    --radius:16px; --radiussm:10px;
+  }
+  [data-dark="1"] {
+    --bg:#12151C; --card:#1E2230; --text:#F0F2F5; --sub:#9CA3AF;
+    --border:#2D3148; --shadow:0 2px 16px rgba(0,0,0,.4);
+    --green3:#0a2e1c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;justify-content:center;align-items:flex-start;transition:background .3s,color .3s;}
+  #app{width:100%;max-width:430px;min-height:100dvh;background:var(--bg);position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  @media(min-width:600px){#app{min-height:860px;border-radius:32px;margin:20px auto;overflow:hidden;}}
+  .screen{display:none;flex-direction:column;min-height:100dvh;background:var(--bg);animation:fadeIn .25s ease;}
+  .screen.active{display:flex;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;border:1px solid var(--border);}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;border-radius:12px;font-weight:600;font-size:15px;border:none;cursor:pointer;transition:all .18s;width:100%;}
+  .btn-green{background:var(--green);color:#fff;}
+  .btn-green:hover{background:var(--green2);transform:translateY(-1px);}
+  .btn-green:active{transform:scale(.97);}
+  .btn-outline{background:transparent;color:var(--green);border:2px solid var(--green);}
+  .btn-outline:hover{background:var(--green3);}
+  .btn-gray{background:var(--border);color:var(--sub);}
+  .btn-danger{background:var(--danger);color:#fff;}
+  .btn-sm{padding:8px 16px;font-size:13px;border-radius:8px;width:auto;}
+  .inp{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;background:var(--card);color:var(--text);outline:none;transition:border .18s;}
+  .inp:focus{border-color:var(--green);}
+  .inp.error{border-color:var(--danger);}
+  .inp-label{font-size:13px;color:var(--sub);margin-bottom:5px;font-weight:500;}
+  .topbar{display:flex;align-items:center;padding:16px 20px 12px;gap:12px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+  .topbar h2{flex:1;font-size:17px;font-weight:700;color:var(--text);}
+  .back-btn{width:36px;height:36px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:background .18s;flex-shrink:0;}
+  .back-btn:hover{background:var(--border);}
+  .bottom-nav{display:flex;background:var(--card);border-top:1px solid var(--border);position:sticky;bottom:0;z-index:50;}
+  .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 12px;gap:3px;cursor:pointer;font-size:10px;color:var(--sub);font-weight:500;transition:color .18s;}
+  .nav-item.active{color:var(--green);}
+  .nav-item svg{width:22px;height:22px;}
+  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+  .badge-green{background:#dcfce7;color:#16a34a;}
+  .badge-yellow{background:#fef3c7;color:#d97706;}
+  .badge-blue{background:#dbeafe;color:#1d4ed8;}
+  .badge-red{background:#fee2e2;color:#dc2626;}
+  .badge-gray{background:var(--border);color:var(--sub);}
+  #toast-container{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:90%;max-width:400px;}
+  .toast{background:#1A1D23;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,.3);display:flex;align-items:center;gap:10px;animation:toastIn .3s ease;pointer-events:all;}
+  .toast.hide{animation:toastOut .3s ease forwards;}
+  @keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes toastOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-12px)}}
+  .map-bg{background:linear-gradient(135deg,#d4edda 0%,#c3e6cb 40%,#b8dfc8 100%);position:relative;overflow:hidden;}
+  .map-road{position:absolute;background:rgba(255,255,255,.5);border-radius:4px;}
+  .stars{display:flex;gap:6px;}
+  .star{font-size:32px;cursor:pointer;transition:transform .15s;user-select:none;}
+  .star:hover{transform:scale(1.2);}
+  .accordion-item{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:8px;}
+  .accordion-header{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--card);font-weight:600;font-size:14px;}
+  .accordion-body{padding:0 16px;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;background:var(--bg);font-size:13px;color:var(--sub);line-height:1.6;}
+  .accordion-body.open{max-height:300px;padding:12px 16px;}
+  .chat-bubble{max-width:75%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;margin-bottom:4px;}
+  .chat-bubble.sent{background:var(--green);color:#fff;border-bottom-right-radius:4px;align-self:flex-end;}
+  .chat-bubble.recv{background:var(--card);color:var(--text);border-bottom-left-radius:4px;align-self:flex-start;border:1px solid var(--border);}
+  .timeline-item{display:flex;gap:12px;padding-bottom:20px;position:relative;}
+  .timeline-item:not(:last-child)::after{content:'';position:absolute;left:15px;top:32px;width:2px;bottom:0;background:var(--border);}
+  .timeline-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .skeleton{background:linear-gradient(90deg,var(--border) 25%,var(--bg) 50%,var(--border) 75%);background-size:200% 100%;animation:skeleton 1.4s infinite;border-radius:8px;}
+  @keyframes skeleton{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .astats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  @media(max-width:430px){.astats{grid-template-columns:repeat(2,1fr);}}
+  .astat-card{background:var(--card);border-radius:12px;padding:14px;border:1px solid var(--border);text-align:center;}
+  .agrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:380px){.agrid{grid-template-columns:1fr;}}
+  .atag{display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+  .order-card{background:var(--card);border-radius:var(--radius);padding:16px;border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:12px;}
+  .switch{position:relative;width:50px;height:26px;flex-shrink:0;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:26px;transition:.3s;}
+  .slider:before{content:'';position:absolute;width:20px;height:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;}
+  input:checked + .slider{background:var(--green);}
+  input:checked + .slider:before{transform:translateX(24px);}
+  .sms-inputs{display:flex;gap:8px;justify-content:center;}
+  .sms-inp{width:52px;height:60px;text-align:center;font-size:24px;font-weight:700;border:2px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);outline:none;transition:border .18s;}
+  .sms-inp:focus{border-color:var(--green);}
+  @keyframes bounce{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-60%,-60%) scale(1.1)}}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.05);opacity:.7}}
+  .pay-card{border-radius:12px;border:2px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border .18s,background .18s;background:var(--card);}
+  .pay-card.selected{border-color:var(--green);background:var(--green3);}
+  .notif-item{display:flex;gap:12px;padding:14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
+  .notif-item:hover{background:var(--bg);}
+  .notif-dot{width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:5px;}
+  .addr-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;}
+  .card-hover{transition:transform .18s,box-shadow .18s;cursor:pointer;}
+  .card-hover:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.12);}
+  .btn{position:relative;overflow:hidden;}
+  .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.35);transform:scale(0);animation:ripple .5s linear;pointer-events:none;}
+  @keyframes ripple{to{transform:scale(4);opacity:0;}}
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+</style>
+</head>
+<body>
+<div id="toast-container" role="alert" aria-live="polite"></div>
+<div id="app">
+
+<!-- ══════════════════════════════════════════════════════════════
+     TELA s0 — SPLASH
+══════════════════════════════════════════════════════════════ -->
+<div class="screen active" id="s0" role="main">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 30px;">
+    <div style="font-size:72px;margin-bottom:16px;animation:slideUp .6s ease;">📦</div>
+    <h1 style="font-size:36px;font-weight:900;color:var(--green);letter-spacing:-1px;margin-bottom:6px;">ENTREGUE</h1>
+    <p style="color:var(--sub);font-size:15px;text-align:center;margin-bottom:48px;">O app de entregas mais rápido do Brasil 🚀</p>
+    <div style="width:100%;display:flex;flex-direction:column;gap:14px;">
+      <button class="btn btn-green" onclick="go('s1')" aria-label="Acessar como cliente"><span>🛍️</span> Sou Cliente</button>
+      <button class="btn btn-outline" onclick="go('r0')" aria-label="Acessar como entregador"><span>🛵</span> Sou Entregador</button>
+      <button class="btn btn-gray" onclick="go('a0')" aria-label="Acessar painel administrativo"><span>🔧</span> Painel Admin</button>
+    </div>
+    <div style="margin-top:40px;display:flex;gap:20px;">
+      <span style="font-size:13px;color:var(--sub);">v3.0</span>
+      <span onclick="toggleDark()" style="font-size:13px;color:var(--sub);cursor:pointer;">🌙 Dark mode</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     CLIENTE
+══════════════════════════════════════════════════════════════ -->
+
+<!-- TELA s1 — LOGIN CLIENTE -->
+<div class="screen" id="s1">
+  <div style="background:var(--green);padding:40px 30px 30px;color:#fff;">
+    <div style="font-size:36px;margin-bottom:8px;">📦</div>
+    <h1 style="font-size:26px;font-weight:800;">Olá! 👋</h1>
+    <p style="opacity:.85;font-size:14px;margin-top:4px;">Entre com seu número de telefone</p>
+  </div>
+  <div style="flex:1;padding:28px 24px;display:flex;flex-direction:column;gap:20px;">
+    <div>
+      <div class="inp-label">Número de telefone</div>
+      <input class="inp" id="s1-phone" type="tel" placeholder="+55 (11) 99999-9999" maxlength="19" oninput="phoneMask(this)" aria-label="Número de telefone">
+    </div>
+    <button class="btn btn-green" onclick="doLogin()" aria-label="Continuar com SMS">Continuar com SMS →</button>
+    <div style="text-align:center;color:var(--sub);font-size:13px;">ou</div>
+    <button class="btn btn-outline" onclick="go('s11')" aria-label="Criar conta nova">Criar conta nova</button>
+    <button class="btn btn-gray" onclick="go('s0')" aria-label="Voltar ao início">← Voltar</button>
+    <p style="text-align:center;font-size:12px;color:var(--sub);margin-top:auto;">Ao continuar, você aceita nossos <span onclick="go('s19')" style="color:var(--green);cursor:pointer;font-weight:600;">Termos de Uso</span></p>
+  </div>
+</div>
+
+<!-- TELA s2 — SMS OTP -->
+<div class="screen" id="s2">
+  <div style="background:var(--green);padding:40px 30px 30px;color:#fff;">
+    <div style="font-size:36px;margin-bottom:8px;">💬</div>
+    <h1 style="font-size:24px;font-weight:800;">Confirme seu número</h1>
+    <p id="s2-phone-display" style="opacity:.85;font-size:14px;margin-top:4px;">Enviamos um código para +55 (11) 99999-9999</p>
+  </div>
+  <div style="flex:1;padding:28px 24px;display:flex;flex-direction:column;gap:24px;">
+    <div>
+      <div class="inp-label" style="text-align:center;margin-bottom:16px;">Digite o código de 4 dígitos</div>
+      <div class="sms-inputs">
+        <input class="sms-inp" maxlength="1" type="tel" id="sms0" oninput="smsNext(this,0)" aria-label="Dígito 1">
+        <input class="sms-inp" maxlength="1" type="tel" id="sms1" oninput="smsNext(this,1)" aria-label="Dígito 2">
+        <input class="sms-inp" maxlength="1" type="tel" id="sms2" oninput="smsNext(this,2)" aria-label="Dígito 3">
+        <input class="sms-inp" maxlength="1" type="tel" id="sms3" oninput="smsNext(this,3)" aria-label="Dígito 4">
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <div id="s2-timer" style="color:var(--sub);font-size:14px;">Reenviar em <b id="s2-counter">30</b>s</div>
+      <button id="s2-resend" style="display:none;color:var(--green);background:none;border:none;cursor:pointer;font-weight:600;font-size:14px;" onclick="resendSMS()">Reenviar código</button>
+    </div>
+    <button class="btn btn-green" onclick="doVerify()" aria-label="Verificar código">Verificar código</button>
+    <button class="btn btn-gray" onclick="go('s1')" aria-label="Voltar">← Voltar</button>
+    <p style="text-align:center;font-size:12px;color:var(--sub);">💡 Use o código <b>1234</b> para este demo</p>
+  </div>
+</div>
+
+<!-- TELA s3 — HOME CLIENTE -->
+<div class="screen" id="s3">
+  <div style="background:var(--green);padding:20px 20px 70px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div>
+        <div style="font-size:13px;color:rgba(255,255,255,.8);">Bom dia,</div>
+        <div style="font-size:20px;font-weight:800;color:#fff;" id="s3-name">Gabriel 👋</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="go('s13')" style="background:rgba(255,255,255,.2);border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;" aria-label="Notificações">🔔</button>
+        <button onclick="go('s10')" style="background:rgba(255,255,255,.2);border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;" aria-label="Perfil">👤</button>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="go('s4')" role="button" aria-label="Buscar destino">
+      <span style="font-size:18px;">🔍</span>
+      <span style="color:rgba(255,255,255,.9);font-size:14px;">Para onde vai a entrega?</span>
+    </div>
+  </div>
+  <div style="padding:0 16px;margin-top:-44px;margin-bottom:16px;">
+    <div class="card card-hover" onclick="go('s8')" style="border-left:4px solid var(--green);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div>
+          <span class="badge badge-green">🛵 A caminho</span>
+          <div style="font-weight:700;font-size:15px;margin-top:6px;">#ENT-2891</div>
+        </div>
+        <div style="text-align:right;font-size:13px;color:var(--sub);">
+          <div>Chegando em</div>
+          <div style="font-size:20px;font-weight:800;color:var(--green);" id="s3-eta">08:32</div>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--sub);">
+        <span>Coletado</span><span>A caminho</span><span>Entregue</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:16px;">🧑</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;">Marcos Silva</div>
+            <div style="font-size:11px;color:var(--sub);">⭐ 4.8 · Honda CG 150</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="event.stopPropagation();go('s12')" style="background:var(--green3);border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--green);" aria-label="Chat com entregador">💬</button>
+          <button onclick="event.stopPropagation();callDriver()" style="background:var(--green3);border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--green);" aria-label="Ligar para entregador">📞</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:0 16px;margin-bottom:16px;">
+    <div style="font-size:15px;font-weight:700;margin-bottom:12px;">Serviços</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+      <div onclick="go('s4')" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" role="button" aria-label="Nova entrega">
+        <div style="width:52px;height:52px;background:var(--green3);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;">📦</div>
+        <span style="font-size:11px;text-align:center;font-weight:500;">Entrega</span>
+      </div>
+      <div onclick="toast('🚧 Funcionalidade em breve!','warn')" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" role="button" aria-label="Compras">
+        <div style="width:52px;height:52px;background:#FEF3C7;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;">🛒</div>
+        <span style="font-size:11px;text-align:center;font-weight:500;">Compras</span>
+      </div>
+      <div onclick="toast('🚧 Funcionalidade em breve!','warn')" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" role="button" aria-label="Documentos">
+        <div style="width:52px;height:52px;background:#DBEAFE;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;">📋</div>
+        <span style="font-size:11px;text-align:center;font-weight:500;">Docs</span>
+      </div>
+      <div onclick="toast('🚧 Funcionalidade em breve!','warn')" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" role="button" aria-label="Expresso">
+        <div style="width:52px;height:52px;background:#FCE7F3;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;">⚡</div>
+        <span style="font-size:11px;text-align:center;font-weight:500;">Expresso</span>
+      </div>
+    </div>
+  </div>
+  <div style="padding:0 16px 20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="font-size:15px;font-weight:700;">Entregas recentes</div>
+      <span onclick="go('s9')" style="font-size:13px;color:var(--green);cursor:pointer;font-weight:600;">Ver todas →</span>
+    </div>
+    <div class="card card-hover" onclick="go('s18')" style="margin-bottom:10px;display:flex;align-items:center;gap:12px;">
+      <div style="width:42px;height:42px;background:#dcfce7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">✅</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;">#ENT-2890</div>
+        <div style="font-size:12px;color:var(--sub);">Entregue · hoje 14:22</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:var(--green);">R$18,50</div>
+    </div>
+    <div class="card card-hover" onclick="go('s18')" style="display:flex;align-items:center;gap:12px;">
+      <div style="width:42px;height:42px;background:#dcfce7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">✅</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;">#ENT-2888</div>
+        <div style="font-size:12px;color:var(--sub);">Entregue · ontem 11:05</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:var(--green);">R$24,00</div>
+    </div>
+  </div>
+  <nav class="bottom-nav" aria-label="Navegação principal cliente">
+    <div class="nav-item active" onclick="go('s3')" aria-label="Início"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</div>
+    <div class="nav-item" onclick="go('s9')" aria-label="Histórico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>Histórico</div>
+    <div class="nav-item" onclick="go('s4')" aria-label="Nova entrega"><div style="width:48px;height:48px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:-22px;box-shadow:0 4px 12px rgba(0,194,107,.4);"><svg viewBox="0 0 24 24" fill="white" style="width:24px;height:24px;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>Enviar</div>
+    <div class="nav-item" onclick="go('s13')" aria-label="Notificações"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>Alertas</div>
+    <div class="nav-item" onclick="go('s10')" aria-label="Perfil"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Perfil</div>
+  </nav>
+</div>
+
+<!-- TELA s4 — CRIAR ENTREGA -->
+<div class="screen" id="s4">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s3')" aria-label="Voltar">←</button>
+    <h2>Nova Entrega</h2>
+    <span style="font-size:20px;">📦</span>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;">
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">📍 Origem</div>
+      <input class="inp" type="text" placeholder="Rua de coleta" style="margin-bottom:10px;" aria-label="Endereço de coleta">
+      <input class="inp" type="text" placeholder="Número, complemento" aria-label="Complemento da origem">
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">🎯 Destino</div>
+      <input class="inp" type="text" placeholder="Rua de entrega" style="margin-bottom:10px;" aria-label="Endereço de entrega">
+      <input class="inp" type="text" placeholder="Número, complemento" aria-label="Complemento do destino">
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">🚀 Tipo de Serviço</div>
+      <div style="display:flex;gap:10px;">
+        <div onclick="toast('📦 Normal selecionado','success')" style="flex:1;padding:12px;border:2px solid var(--green);border-radius:10px;text-align:center;cursor:pointer;background:var(--green3);" role="button">
+          <div style="font-size:20px;">🛵</div>
+          <div style="font-size:13px;font-weight:700;color:var(--green);">Normal</div>
+          <div style="font-size:11px;color:var(--sub);">~45 min</div>
+        </div>
+        <div onclick="toast('⚡ Expresso selecionado','success')" style="flex:1;padding:12px;border:2px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;" role="button">
+          <div style="font-size:20px;">⚡</div>
+          <div style="font-size:13px;font-weight:700;">Expresso</div>
+          <div style="font-size:11px;color:var(--sub);">~20 min</div>
+        </div>
+        <div onclick="toast('📅 Agendado selecionado','success')" style="flex:1;padding:12px;border:2px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;" role="button">
+          <div style="font-size:20px;">📅</div>
+          <div style="font-size:13px;font-weight:700;">Agendar</div>
+          <div style="font-size:11px;color:var(--sub);">Escolha hora</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="inp-label">📝 Descrição do pacote (opcional)</div>
+      <input class="inp" type="text" placeholder="Ex: Caixa frágil, documentos..." aria-label="Descrição do pacote">
+    </div>
+    <div class="card" style="background:var(--green3);border-color:var(--green);">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:13px;color:var(--green);font-weight:600;">Estimativa de preço</div>
+          <div style="font-size:22px;font-weight:800;color:var(--green);">R$ 18,50</div>
+        </div>
+        <div style="text-align:right;font-size:13px;color:var(--sub);">
+          <div>~8,2 km</div><div>~45 min</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-green" onclick="go('s5')" aria-label="Confirmar e buscar entregador">Confirmar e Buscar Entregador →</button>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- TELA s5 — BUSCANDO ENTREGADOR -->
+<div class="screen" id="s5">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s4')" aria-label="Voltar">←</button>
+    <h2>Buscando Entregador</h2>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;">
+    <div style="font-size:72px;margin-bottom:20px;" id="s5-icon">🛵</div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:8px;" id="s5-status">Procurando entregadores próximos...</div>
+    <div style="font-size:14px;color:var(--sub);margin-bottom:32px;" id="s5-sub">Aguarde um momento</div>
+    <div style="width:200px;height:200px;position:relative;">
+      <div style="position:absolute;inset:0;border-radius:50%;border:3px solid var(--green);opacity:.3;animation:pulse 2s infinite;"></div>
+      <div style="position:absolute;inset:20px;border-radius:50%;border:3px solid var(--green);opacity:.5;animation:pulse 2s .4s infinite;"></div>
+      <div style="position:absolute;inset:40px;border-radius:50%;border:3px solid var(--green);opacity:.7;animation:pulse 2s .8s infinite;"></div>
+      <div style="position:absolute;inset:60px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;">🛵</div>
+    </div>
+    <style>@keyframes pulse{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.05);opacity:.7}}</style>
+    <div style="margin-top:32px;width:100%;">
+      <div class="progress-bar" style="height:6px;"><div class="progress-fill" id="s5-bar" style="width:0%;transition:width 3s linear;"></div></div>
+    </div>
+    <button class="btn btn-gray btn-sm" style="margin-top:24px;width:auto;" onclick="go('s4')">Cancelar busca</button>
+  </div>
+</div>
+
+<!-- TELA s6 — ENTREGADOR ACEITO -->
+<div class="screen" id="s6">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s3')" aria-label="Fechar">✕</button>
+    <h2>Entregador Confirmado! 🎉</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;">
+    <div class="card" style="text-align:center;padding:24px;background:var(--green3);border-color:var(--green);">
+      <div style="width:80px;height:80px;border-radius:50%;background:var(--green);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:36px;border:3px solid #fff;box-shadow:0 4px 16px rgba(0,194,107,.3);">🧑</div>
+      <div style="font-size:20px;font-weight:800;">Marcos Silva</div>
+      <div style="color:var(--sub);font-size:13px;margin-top:2px;">Honda CG 150 · ABC-1234</div>
+      <div style="display:flex;justify-content:center;gap:16px;margin-top:14px;">
+        <div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--green);">4.8</div><div style="font-size:11px;color:var(--sub);">⭐ Aval.</div></div>
+        <div style="width:1px;background:var(--border);"></div>
+        <div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--green);">347</div><div style="font-size:11px;color:var(--sub);">📦 Entregas</div></div>
+        <div style="width:1px;background:var(--border);"></div>
+        <div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--green);">2 min</div><div style="font-size:11px;color:var(--sub);">⏱ Distância</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:12px;">📋 Resumo da Entrega</div>
+      <div style="display:flex;gap:10px;margin-bottom:8px;"><span style="font-size:16px;">📍</span><div><div style="font-size:12px;color:var(--sub);">Coleta</div><div style="font-size:14px;">Rua das Flores, 123</div></div></div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;"><span style="font-size:16px;">🎯</span><div><div style="font-size:12px;color:var(--sub);">Entrega</div><div style="font-size:14px;">Av. Paulista, 456</div></div></div>
+      <div style="display:flex;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);"><span style="color:var(--sub);">Total</span><span style="font-weight:800;font-size:18px;color:var(--green);">R$ 18,50</span></div>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <button onclick="go('s12')" class="btn btn-outline" style="flex:1;" aria-label="Chat com entregador">💬 Chat</button>
+      <button onclick="callDriver()" class="btn btn-outline" style="flex:1;" aria-label="Ligar para entregador">📞 Ligar</button>
+    </div>
+    <button class="btn btn-green" onclick="go('s8')" aria-label="Rastrear entrega">🗺️ Rastrear Entrega →</button>
+    <button class="btn btn-gray" onclick="go('s3')" aria-label="Voltar ao início">Voltar ao Início</button>
+  </div>
+</div>
+
+<!-- TELA s7 — RASTREAMENTO MAPA -->
+<div class="screen" id="s7">
+  <div style="position:relative;flex:1;">
+    <div class="map-bg" style="height:55vh;position:relative;">
+      <div class="map-road" style="width:3px;height:100%;left:35%;top:0;opacity:.4;"></div>
+      <div class="map-road" style="width:3px;height:100%;left:65%;top:0;opacity:.3;"></div>
+      <div class="map-road" style="height:3px;width:100%;top:40%;left:0;opacity:.4;"></div>
+      <div class="map-road" style="height:3px;width:100%;top:70%;left:0;opacity:.3;"></div>
+      <div style="position:absolute;top:20px;left:20px;background:rgba(255,255,255,.95);border-radius:12px;padding:10px 14px;backdrop-filter:blur(10px);">
+        <div style="font-size:11px;color:var(--sub);">Chegando em</div>
+        <div style="font-size:22px;font-weight:800;color:var(--green);">08 min</div>
+      </div>
+      <div style="position:absolute;top:35%;left:30%;transform:translate(-50%,-50%);">
+        <div style="background:var(--green);color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(0,194,107,.5);animation:bounce 1.5s infinite;">🛵</div>
+      </div>
+      <div style="position:absolute;top:30%;left:20%;transform:translate(-50%,-50%);">
+        <div style="background:#3B82F6;color:#fff;border-radius:8px;padding:4px 8px;font-size:11px;font-weight:700;white-space:nowrap;">📍 Coleta</div>
+      </div>
+      <div style="position:absolute;top:65%;left:70%;transform:translate(-50%,-50%);">
+        <div style="background:var(--danger);color:#fff;border-radius:8px;padding:4px 8px;font-size:11px;font-weight:700;white-space:nowrap;">🎯 Entrega</div>
+      </div>
+    </div>
+    <div style="background:var(--card);border-radius:24px 24px 0 0;margin-top:-24px;padding:20px;position:relative;z-index:10;">
+      <div style="width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;"></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🧑</div>
+        <div style="flex:1;"><div style="font-weight:700;">Marcos Silva</div><div style="font-size:12px;color:var(--sub);">⭐ 4.8 · Honda CG · ABC-1234</div></div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="go('s12')" style="background:var(--green3);border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-size:16px;" aria-label="Chat">💬</button>
+          <button onclick="callDriver()" style="background:var(--green3);border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-size:16px;" aria-label="Ligar">📞</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <div style="flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:12px;color:var(--sub);">Distância</div><div style="font-weight:700;">3,2 km</div></div>
+        <div style="flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:12px;color:var(--sub);">Chegada</div><div style="font-weight:700;">~08 min</div></div>
+        <div style="flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:12px;color:var(--sub);">Status</div><div style="font-weight:700;color:var(--green);">A caminho</div></div>
+      </div>
+      <button class="btn btn-gray btn-sm" onclick="go('s3')" style="width:auto;" aria-label="Voltar ao início">← Início</button>
+    </div>
+  </div>
+</div>
+
+<!-- TELA s8 — RASTREAMENTO v2 -->
+<div class="screen" id="s8">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s3')" aria-label="Voltar">←</button>
+    <h2>Rastreando #ENT-2891</h2>
+    <span class="badge badge-green">Ao vivo</span>
+  </div>
+  <div style="flex:1;overflow-y:auto;">
+    <div class="map-bg" style="height:40vh;position:relative;">
+      <div class="map-road" style="width:3px;height:100%;left:50%;top:0;opacity:.4;"></div>
+      <div class="map-road" style="height:3px;width:100%;top:50%;left:0;opacity:.4;"></div>
+      <div style="position:absolute;top:40%;left:45%;transform:translate(-50%,-50%);animation:bounce 2s infinite;">
+        <div style="background:var(--green);color:#fff;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 16px rgba(0,194,107,.5);">🛵</div>
+      </div>
+      <div style="position:absolute;top:25%;left:25%;"><div style="background:#3B82F6;color:#fff;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;">📍 Origem</div></div>
+      <div style="position:absolute;top:70%;left:75%;"><div style="background:var(--danger);color:#fff;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;">🎯 Destino</div></div>
+    </div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span class="badge badge-green">🛵 A caminho</span>
+          <span style="font-size:13px;color:var(--sub);">Atualizado há 10s</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:65%;"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--sub);">
+          <span>Criada</span><span>Coletada</span><span style="color:var(--green);font-weight:700;">A caminho ←</span><span>Entregue</span>
+        </div>
+      </div>
+      <div class="card" style="display:flex;align-items:center;gap:12px;">
+        <div style="width:50px;height:50px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🧑</div>
+        <div style="flex:1;"><div style="font-weight:700;">Marcos Silva</div><div style="font-size:12px;color:var(--sub);">⭐ 4.8 · 347 entregas</div><div style="font-size:12px;color:var(--sub);">🏍️ Honda CG 150 · ABC-1234</div></div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="go('s12')" style="background:var(--green3);border:none;padding:10px;border-radius:10px;cursor:pointer;font-size:18px;" aria-label="Chat">💬</button>
+          <button onclick="callDriver()" style="background:var(--green3);border:none;padding:10px;border-radius:10px;cursor:pointer;font-size:18px;" aria-label="Ligar">📞</button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px;">📍 Rota</div>
+        <div style="display:flex;gap:10px;margin-bottom:10px;"><span style="font-size:16px;">🟢</span><div><div style="font-size:12px;color:var(--sub);">Origem</div><div style="font-size:14px;">Rua das Flores, 123 — Jardins</div></div></div>
+        <div style="display:flex;gap:10px;"><span style="font-size:16px;">🔴</span><div><div style="font-size:12px;color:var(--sub);">Destino</div><div style="font-size:14px;">Av. Paulista, 456 — Bela Vista</div></div></div>
+      </div>
+      <button class="btn btn-green" onclick="simulateDelivered()" aria-label="Simular entrega">🎮 Simular: Entregue</button>
+    </div>
+  </div>
+</div>
+
+<!-- TELA s9 — HISTÓRICO -->
+<div class="screen" id="s9">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s3')" aria-label="Voltar">←</button>
+    <h2>Histórico de Entregas</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;">
+    <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;">
+      <button class="btn btn-green btn-sm" style="white-space:nowrap;">Todas</button>
+      <button class="btn btn-gray btn-sm" style="white-space:nowrap;">Entregues</button>
+      <button class="btn btn-gray btn-sm" style="white-space:nowrap;">Canceladas</button>
+    </div>
+    <div class="card card-hover" onclick="go('s18')" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <div style="width:44px;height:44px;background:#dcfce7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">✅</div>
+      <div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-size:14px;font-weight:700;">#ENT-2890</span><span style="font-size:14px;font-weight:700;color:var(--green);">R$18,50</span></div><div style="font-size:12px;color:var(--sub);">Rua das Flores → Av. Paulista</div><div style="font-size:11px;color:var(--sub);">Hoje 14:22 · Marcos S. · ⭐ 5.0</div></div>
+    </div>
+    <div class="card card-hover" onclick="go('s18')" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <div style="width:44px;height:44px;background:#dcfce7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">✅</div>
+      <div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-size:14px;font-weight:700;">#ENT-2888</span><span style="font-size:14px;font-weight:700;color:var(--green);">R$24,00</span></div><div style="font-size:12px;color:var(--sub);">Mooca → Vila Mariana</div><div style="font-size:11px;color:var(--sub);">Ontem 11:05 · Ana P. · ⭐ 4.5</div></div>
+    </div>
+    <div class="card card-hover" onclick="go('s18')" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <div style="width:44px;height:44px;background:#fee2e2;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">❌</div>
+      <div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-size:14px;font-weight:700;">#ENT-2885</span><span class="badge badge-red">Cancelada</span></div><div style="font-size:12px;color:var(--sub);">Lapa → Pinheiros</div><div style="font-size:11px;color:var(--sub);">22/05 · Cancelada pelo cliente</div></div>
+    </div>
+    <div class="card card-hover" onclick="go('s18')" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <div style="width:44px;height:44px;background:#dcfce7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">✅</div>
+      <div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-size:14px;font-weight:700;">#ENT-2881</span><span style="font-size:14px;font-weight:700;color:var(--green);">R$31,00</span></div><div style="font-size:12px;color:var(--sub);">Centro → Tatuapé</div><div style="font-size:11px;color:var(--sub);">20/05 · Carlos M. · ⭐ 4.8</div></div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="go('s3')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</div>
+    <div class="nav-item active" onclick="go('s9')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>Histórico</div>
+    <div class="nav-item" onclick="go('s4')"><div style="width:48px;height:48px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:-22px;box-shadow:0 4px 12px rgba(0,194,107,.4);"><svg viewBox="0 0 24 24" fill="white" style="width:24px;height:24px;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>Enviar</div>
+    <div class="nav-item" onclick="go('s13')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>Alertas</div>
+    <div class="nav-item" onclick="go('s10')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Perfil</div>
+  </nav>
+</div>
+
+<!-- TELA s10 — PERFIL CLIENTE -->
+<div class="screen" id="s10">
+  <div style="background:var(--green);padding:40px 20px 28px;">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:30px;border:3px solid rgba(255,255,255,.5);">👤</div>
+      <div>
+        <div style="font-size:20px;font-weight:800;color:#fff;" id="s10-name">Gabriel Santos</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.8);">+55 (11) 98765-4321</div>
+        <span style="background:rgba(255,255,255,.2);color:#fff;font-size:11px;padding:2px 10px;border-radius:20px;font-weight:700;">Cliente Premium ⭐</span>
+      </div>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;">
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Conta</div>
+      <div onclick="go('s17')" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;" role="button" aria-label="Meus endereços">
+        <span style="font-size:20px;">📍</span><span style="flex:1;font-size:15px;">Meus Endereços</span><span style="color:var(--sub);">›</span>
+      </div>
+      <div onclick="go('s16')" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;" role="button" aria-label="Pagamentos">
+        <span style="font-size:20px;">💳</span><span style="flex:1;font-size:15px;">Pagamentos</span><span style="color:var(--sub);">›</span>
+      </div>
+      <div onclick="go('s13')" style="display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;" role="button" aria-label="Notificações">
+        <span style="font-size:20px;">🔔</span><span style="flex:1;font-size:15px;">Notificações</span><span style="color:var(--sub);">›</span>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Preferências</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:20px;">🌙</span><span style="flex:1;font-size:15px;">Modo Escuro</span>
+        <label class="switch" aria-label="Alternar modo escuro"><input type="checkbox" id="dark-toggle" onchange="toggleDark()"><span class="slider"></span></label>
+      </div>
+      <div onclick="shareReferral()" style="display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;" role="button" aria-label="Indique e ganhe">
+        <span style="font-size:20px;">🎁</span><span style="flex:1;font-size:15px;">Indique e Ganhe R$10</span><span style="color:var(--sub);">›</span>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Suporte</div>
+      <div onclick="go('s14')" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;" role="button" aria-label="Ajuda e suporte">
+        <span style="font-size:20px;">❓</span><span style="flex:1;font-size:15px;">Ajuda e Suporte</span><span style="color:var(--sub);">›</span>
+      </div>
+      <div onclick="go('s19')" style="display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;" role="button" aria-label="Termos de uso">
+        <span style="font-size:20px;">📄</span><span style="flex:1;font-size:15px;">Termos de Uso</span><span style="color:var(--sub);">›</span>
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="logout()" aria-label="Sair da conta">🚪 Sair da Conta</button>
+    <div style="height:16px;"></div>
+  </div>
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="go('s3')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</div>
+    <div class="nav-item" onclick="go('s9')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>Histórico</div>
+    <div class="nav-item" onclick="go('s4')"><div style="width:48px;height:48px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:-22px;box-shadow:0 4px 12px rgba(0,194,107,.4);"><svg viewBox="0 0 24 24" fill="white" style="width:24px;height:24px;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>Enviar</div>
+    <div class="nav-item" onclick="go('s13')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>Alertas</div>
+    <div class="nav-item active" onclick="go('s10')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Perfil</div>
+  </nav>
+</div>
+
+<!-- TELA s11 — CADASTRO -->
+<div class="screen" id="s11">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s1')" aria-label="Voltar">←</button>
+    <h2>Criar Conta</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;">
+    <div><div class="inp-label">Nome completo *</div><input class="inp" id="reg-name" type="text" placeholder="Seu nome completo" aria-label="Nome completo"></div>
+    <div><div class="inp-label">Telefone *</div><input class="inp" id="reg-phone" type="tel" placeholder="+55 (11) 99999-9999" maxlength="19" oninput="phoneMask(this)" aria-label="Telefone"></div>
+    <div><div class="inp-label">E-mail *</div><input class="inp" id="reg-email" type="email" placeholder="seu@email.com" aria-label="E-mail"></div>
+    <div><div class="inp-label">CPF *</div><input class="inp" id="reg-cpf" type="tel" placeholder="000.000.000-00" maxlength="14" oninput="cpfMask(this)" aria-label="CPF"></div>
+    <div style="display:flex;gap:10px;align-items:flex-start;padding:4px 0;">
+      <input type="checkbox" id="reg-terms" style="width:18px;height:18px;margin-top:2px;accent-color:var(--green);" aria-label="Aceitar termos">
+      <label for="reg-terms" style="font-size:13px;color:var(--sub);line-height:1.5;">Li e aceito os <span onclick="go('s19')" style="color:var(--green);cursor:pointer;font-weight:600;">Termos de Uso</span></label>
+    </div>
+    <button class="btn btn-green" onclick="doRegister()" aria-label="Criar conta">Criar Conta ✓</button>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- TELA s12 — CHAT COM ENTREGADOR -->
+<div class="screen" id="s12">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s8')" aria-label="Voltar ao rastreio">←</button>
+    <div style="width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:16px;">🧑</div>
+    <div style="flex:1;"><div style="font-size:15px;font-weight:700;line-height:1.2;">Marcos Silva</div><div style="font-size:11px;color:var(--green);">● Online</div></div>
+    <button onclick="callDriver()" style="background:var(--green3);border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:16px;" aria-label="Ligar">📞</button>
+  </div>
+  <div style="padding:10px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;white-space:nowrap;">
+    <button onclick="sendQuick('Estou no local!')" class="btn btn-outline btn-sm" style="white-space:nowrap;margin-right:6px;">📍 No local</button>
+    <button onclick="sendQuick('Pode subir?')" class="btn btn-outline btn-sm" style="white-space:nowrap;margin-right:6px;">☝️ Pode subir?</button>
+    <button onclick="sendQuick('Aguarde 2 minutos')" class="btn btn-outline btn-sm" style="white-space:nowrap;margin-right:6px;">⏳ Aguarde</button>
+    <button onclick="sendQuick('Ok, obrigado!')" class="btn btn-outline btn-sm" style="white-space:nowrap;">👍 Ok!</button>
+  </div>
+  <div id="chat-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;background:var(--bg);">
+    <div style="text-align:center;font-size:11px;color:var(--sub);margin-bottom:4px;">Hoje 14:15</div>
+    <div class="chat-bubble recv">Olá! Fui designado para sua entrega. Estou a caminho! 🛵</div>
+    <div class="chat-bubble sent">Ótimo! Pode deixar no porteiro se não tiver ninguém.</div>
+    <div class="chat-bubble recv">Combinado! Chego em aproximadamente 10 minutos. 👍</div>
+  </div>
+  <div style="padding:12px 16px;background:var(--card);border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;">
+    <input id="chat-inp" class="inp" type="text" placeholder="Mensagem..." style="flex:1;" onkeydown="if(event.key==='Enter')sendMsg()" aria-label="Digite uma mensagem">
+    <button onclick="sendMsg()" style="background:var(--green);border:none;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;" aria-label="Enviar">➤</button>
+  </div>
+</div>
+
+<!-- TELA s13 — NOTIFICAÇÕES -->
+<div class="screen" id="s13">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s3')" aria-label="Voltar">←</button>
+    <h2>Notificações</h2>
+    <button onclick="clearNotifs()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:13px;font-weight:600;" aria-label="Limpar notificações">Limpar</button>
+  </div>
+  <div id="notif-list" style="flex:1;overflow-y:auto;">
+    <div class="notif-item" id="notif1">
+      <div style="width:40px;height:40px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">✅</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:600;">Entrega concluída!</div><div style="font-size:13px;color:var(--sub);">#ENT-2890 foi entregue com sucesso.</div><div style="font-size:11px;color:var(--sub);margin-top:2px;">Hoje · 14:22</div></div>
+      <div class="notif-dot"></div>
+    </div>
+    <div class="notif-item" id="notif2">
+      <div style="width:40px;height:40px;border-radius:50%;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🛵</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:600;">Entregador a caminho</div><div style="font-size:13px;color:var(--sub);">Marcos Silva está se aproximando. ETA: 8 min.</div><div style="font-size:11px;color:var(--sub);margin-top:2px;">Hoje · 14:10</div></div>
+      <div class="notif-dot"></div>
+    </div>
+    <div class="notif-item" id="notif3">
+      <div style="width:40px;height:40px;border-radius:50%;background:#FEF3C7;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🎁</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:600;">Promoção especial!</div><div style="font-size:13px;color:var(--sub);">50% off na próxima entrega. Use: ENTREGUE50</div><div style="font-size:11px;color:var(--sub);margin-top:2px;">Ontem · 10:00</div></div>
+    </div>
+    <div class="notif-item" id="notif4">
+      <div style="width:40px;height:40px;border-radius:50%;background:#FCE7F3;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">⭐</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:600;">Avalie sua entrega</div><div style="font-size:13px;color:var(--sub);">#ENT-2888 — Como foi a experiência?</div><div style="font-size:11px;color:var(--sub);margin-top:2px;">22/05 · 11:15</div></div>
+    </div>
+    <div id="notif-empty" style="display:none;padding:60px 20px;text-align:center;color:var(--sub);"><div style="font-size:48px;margin-bottom:12px;">🔕</div><div style="font-size:16px;font-weight:600;">Nenhuma notificação</div></div>
+  </div>
+</div>
+
+<!-- TELA s14 — SUPORTE / FAQ -->
+<div class="screen" id="s14">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s10')" aria-label="Voltar">←</button>
+    <h2>Ajuda e Suporte</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;">
+    <div style="background:var(--green3);border-radius:12px;padding:16px;border:1px solid rgba(0,194,107,.2);">
+      <div style="font-size:24px;margin-bottom:8px;">💬</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px;">Como podemos ajudar?</div>
+      <div style="font-size:13px;color:var(--sub);">Tempo médio de resposta: 5 minutos</div>
+    </div>
+    <div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:10px;">Perguntas Frequentes</div>
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)" role="button" aria-expanded="false">Como rastrear minha entrega?<span class="acc-icon" style="transition:transform .3s;">▼</span></div>
+        <div class="accordion-body">Acesse a tela inicial e toque no card de entrega ativa. Você verá o mapa em tempo real com a localização do entregador.</div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)" role="button" aria-expanded="false">Como cancelar uma entrega?<span class="acc-icon" style="transition:transform .3s;">▼</span></div>
+        <div class="accordion-body">Cancelamentos gratuitos até 5 min após confirmação. Depois, taxa de R$5,00.</div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)" role="button" aria-expanded="false">Quais formas de pagamento?<span class="acc-icon" style="transition:transform .3s;">▼</span></div>
+        <div class="accordion-body">Aceitamos cartão de crédito, débito (Visa, Mastercard, Elo), PIX e saldo ENTREGUE.</div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)" role="button" aria-expanded="false">O que acontece se o pacote for danificado?<span class="acc-icon" style="transition:transform .3s;">▼</span></div>
+        <div class="accordion-body">Seguro básico de até R$300 incluso. Para itens de maior valor, utilize o seguro ENTREGUE+.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">📞 Fale Conosco</div>
+      <div onclick="toast('💬 WhatsApp: (11) 99999-0000','info')" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;" role="button">
+        <span style="font-size:20px;">💬</span><div><div style="font-size:14px;font-weight:600;">WhatsApp</div><div style="font-size:12px;color:var(--sub);">(11) 99999-0000 · 24h</div></div><span style="margin-left:auto;color:var(--sub);">›</span>
+      </div>
+      <div onclick="toast('📧 Email: suporte@entregue.app','info')" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;" role="button">
+        <span style="font-size:20px;">📧</span><div><div style="font-size:14px;font-weight:600;">E-mail</div><div style="font-size:12px;color:var(--sub);">suporte@entregue.app</div></div><span style="margin-left:auto;color:var(--sub);">›</span>
+      </div>
+      <div onclick="toast('📞 0800-700-0000','info')" style="display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;" role="button">
+        <span style="font-size:20px;">📞</span><div><div style="font-size:14px;font-weight:600;">Telefone</div><div style="font-size:12px;color:var(--sub);">0800-700-0000 · Gratuito</div></div><span style="margin-left:auto;color:var(--sub);">›</span>
+      </div>
+    </div>
+    <button class="btn btn-green" onclick="go('s12')" aria-label="Falar com atendente">💬 Falar com Atendente</button>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- TELA s15 — AVALIAÇÃO PÓS-ENTREGA -->
+<div class="screen" id="s15">
+  <div style="flex:1;display:flex;flex-direction:column;padding:30px 24px;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:56px;margin-bottom:12px;">🎉</div>
+      <h2 style="font-size:22px;font-weight:800;margin-bottom:6px;">Entrega Concluída!</h2>
+      <p style="color:var(--sub);font-size:14px;">#ENT-2891 · Marcos Silva</p>
+    </div>
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:16px;font-weight:600;margin-bottom:14px;">Como foi sua experiência?</div>
+      <div class="stars" id="rating-stars" style="justify-content:center;">
+        <span class="star" data-v="1" onclick="setRating(1)">☆</span>
+        <span class="star" data-v="2" onclick="setRating(2)">☆</span>
+        <span class="star" data-v="3" onclick="setRating(3)">☆</span>
+        <span class="star" data-v="4" onclick="setRating(4)">☆</span>
+        <span class="star" data-v="5" onclick="setRating(5)">☆</span>
+      </div>
+    </div>
+    <div style="margin-bottom:20px;">
+      <div style="font-size:14px;font-weight:600;margin-bottom:10px;text-align:center;">O que você achou?</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;" id="rating-tags">
+        <button class="btn btn-outline btn-sm" onclick="toggleTag(this)" style="width:auto;">⚡ Rápido</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleTag(this)" style="width:auto;">😊 Educado</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleTag(this)" style="width:auto;">📦 Cuidadoso</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleTag(this)" style="width:auto;">📍 Pontual</button>
+      </div>
+    </div>
+    <div style="margin-bottom:20px;">
+      <div class="inp-label">Comentário (opcional)</div>
+      <textarea class="inp" rows="3" placeholder="Sua opinião é importante..." style="resize:none;" aria-label="Comentário"></textarea>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:auto;">
+      <button class="btn btn-gray" onclick="go('s3')" style="flex:1;" aria-label="Pular avaliação">Pular</button>
+      <button class="btn btn-green" onclick="submitRating()" style="flex:1;" aria-label="Enviar avaliação">⭐ Avaliar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TELA s16 — PAGAMENTOS -->
+<div class="screen" id="s16">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s10')" aria-label="Voltar">←</button>
+    <h2>Pagamentos</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;">
+    <div>
+      <div style="font-size:14px;font-weight:700;color:var(--sub);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Métodos Salvos</div>
+      <div class="pay-card selected" onclick="selectPay('pay1')" role="button" aria-label="Cartão Visa">
+        <div style="font-size:24px;">💳</div><div style="flex:1;"><div style="font-weight:700;">Visa ···· 4523</div><div style="font-size:12px;color:var(--sub);">Vence 12/27 · Principal</div></div>
+        <span style="color:var(--green);font-size:18px;">✓</span>
+      </div>
+      <div style="height:8px;"></div>
+      <div class="pay-card" onclick="selectPay('pay2')" role="button" aria-label="Cartão Mastercard">
+        <div style="font-size:24px;">💳</div><div style="flex:1;"><div style="font-weight:700;">Mastercard ···· 8891</div><div style="font-size:12px;color:var(--sub);">Vence 06/26</div></div>
+      </div>
+      <div style="height:8px;"></div>
+      <div class="pay-card" onclick="selectPay('pay3')" role="button" aria-label="PIX">
+        <div style="font-size:24px;">⚡</div><div style="flex:1;"><div style="font-weight:700;">PIX</div><div style="font-size:12px;color:var(--sub);">Pagamento instantâneo</div></div>
+      </div>
+    </div>
+    <button class="btn btn-outline" onclick="toast('🚧 Formulário em breve!','warn')" aria-label="Adicionar cartão">+ Adicionar Cartão</button>
+    <div class="card" style="background:var(--green3);border-color:var(--green);">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-size:12px;color:var(--green);font-weight:600;">Saldo ENTREGUE</div><div style="font-size:24px;font-weight:800;color:var(--green);">R$ 45,00</div></div>
+        <button onclick="toast('💰 Recarga em breve!','info')" class="btn btn-green btn-sm" style="width:auto;" aria-label="Recarregar">+ Recarregar</button>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px;">Últimas transações</div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:600;">Entrega #ENT-2890</div><div style="font-size:11px;color:var(--sub);">Hoje · Visa ···· 4523</div></div><span style="color:var(--danger);font-weight:700;">−R$18,50</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;"><div><div style="font-size:13px;font-weight:600;">Entrega #ENT-2888</div><div style="font-size:11px;color:var(--sub);">Ontem · PIX</div></div><span style="color:var(--danger);font-weight:700;">−R$24,00</span></div>
+      </div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- TELA s17 — MEUS ENDEREÇOS -->
+<div class="screen" id="s17">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s10')" aria-label="Voltar">←</button>
+    <h2>Meus Endereços</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:0;">
+    <div class="addr-item card-hover" id="addr1">
+      <div style="font-size:22px;">🏠</div><div style="flex:1;"><div style="font-size:14px;font-weight:700;">Casa</div><div style="font-size:12px;color:var(--sub);">Rua das Flores, 123 — Jardins, SP</div></div>
+      <div style="display:flex;gap:6px;"><button onclick="toast('✏️ Editar em breve!','info')" style="background:var(--border);border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;" aria-label="Editar">✏️</button><button onclick="deleteAddr('addr1')" style="background:#fee2e2;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;" aria-label="Excluir">🗑️</button></div>
+    </div>
+    <div style="height:10px;"></div>
+    <div class="addr-item card-hover" id="addr2">
+      <div style="font-size:22px;">🏢</div><div style="flex:1;"><div style="font-size:14px;font-weight:700;">Trabalho</div><div style="font-size:12px;color:var(--sub);">Av. Paulista, 456 — Bela Vista, SP</div></div>
+      <div style="display:flex;gap:6px;"><button onclick="toast('✏️ Editar em breve!','info')" style="background:var(--border);border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;" aria-label="Editar">✏️</button><button onclick="deleteAddr('addr2')" style="background:#fee2e2;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;" aria-label="Excluir">🗑️</button></div>
+    </div>
+    <div style="height:14px;"></div>
+    <button class="btn btn-outline" onclick="addAddr()" aria-label="Novo endereço">+ Novo Endereço</button>
+    <div id="new-addr-form" style="display:none;margin-top:14px;">
+      <div class="card" style="display:flex;flex-direction:column;gap:10px;">
+        <div class="inp-label">Rótulo</div><select class="inp" id="new-addr-label" aria-label="Rótulo"><option>Casa</option><option>Trabalho</option><option>Outro</option></select>
+        <div class="inp-label">Endereço</div><input class="inp" id="new-addr-street" type="text" placeholder="Rua, número, complemento" aria-label="Rua">
+        <div class="inp-label">Bairro / Cidade</div><input class="inp" id="new-addr-city" type="text" placeholder="Bairro, Cidade — Estado" aria-label="Cidade">
+        <div style="display:flex;gap:8px;"><button class="btn btn-gray" onclick="document.getElementById('new-addr-form').style.display='none'">Cancelar</button><button class="btn btn-green" onclick="saveAddr()">Salvar</button></div>
+      </div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- TELA s18 — DETALHES DA ENTREGA -->
+<div class="screen" id="s18">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s9')" aria-label="Voltar">←</button>
+    <h2>Detalhes #ENT-2890</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;">
+    <div class="card" style="background:var(--green3);border-color:var(--green);text-align:center;padding:20px;">
+      <div style="font-size:40px;margin-bottom:8px;">✅</div>
+      <div style="font-size:18px;font-weight:800;color:var(--green);">Entrega Concluída</div>
+      <div style="font-size:13px;color:var(--sub);margin-top:4px;">Hoje · 14:22 · Duração: 38 minutos</div>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:12px;">🧾 Comprovante</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;"><span style="color:var(--sub);">Código</span><span style="font-weight:600;">#ENT-2890</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;"><span style="color:var(--sub);">Serviço</span><span style="font-weight:600;">Normal 🛵</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;"><span style="color:var(--sub);">Distância</span><span style="font-weight:600;">8,2 km</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;"><span style="color:var(--sub);">Pagamento</span><span style="font-weight:600;">Visa ···· 4523</span></div>
+      <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;justify-content:space-between;font-size:16px;"><span style="font-weight:700;">Total</span><span style="font-weight:800;color:var(--green);">R$ 18,50</span></div>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:16px;">📍 Timeline</div>
+      <div class="timeline-item"><div class="timeline-dot" style="background:#dcfce7;color:#16a34a;">📦</div><div><div style="font-size:14px;font-weight:600;">Pedido criado</div><div style="font-size:12px;color:var(--sub);">13:44 · Via App</div></div></div>
+      <div class="timeline-item"><div class="timeline-dot" style="background:#DBEAFE;color:#1d4ed8;">🧑</div><div><div style="font-size:14px;font-weight:600;">Entregador aceito</div><div style="font-size:12px;color:var(--sub);">13:46 · Marcos Silva</div></div></div>
+      <div class="timeline-item"><div class="timeline-dot" style="background:#FEF3C7;color:#d97706;">📍</div><div><div style="font-size:14px;font-weight:600;">Pacote coletado</div><div style="font-size:12px;color:var(--sub);">13:58 · Rua das Flores, 123</div></div></div>
+      <div class="timeline-item" style="padding-bottom:0;"><div class="timeline-dot" style="background:#dcfce7;color:#16a34a;">✅</div><div><div style="font-size:14px;font-weight:600;">Entregue com sucesso</div><div style="font-size:12px;color:var(--sub);">14:22 · Av. Paulista, 456</div></div></div>
+    </div>
+    <div class="card" style="display:flex;align-items:center;gap:12px;">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;">🧑</div>
+      <div style="flex:1;"><div style="font-weight:700;">Marcos Silva</div><div style="font-size:12px;color:var(--sub);">⭐ 4.8 · 347 entregas</div></div>
+      <span class="badge badge-green">⭐ 5.0</span>
+    </div>
+    <button class="btn btn-outline" onclick="go('s15')" aria-label="Avaliar entrega">⭐ Avaliar esta Entrega</button>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- TELA s19 — TERMOS DE USO -->
+<div class="screen" id="s19">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('s1')" aria-label="Voltar">←</button>
+    <h2>Termos de Uso</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:20px;">
+    <div style="font-size:22px;font-weight:800;margin-bottom:4px;">📄 Termos e Condições</div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:20px;">Atualizado em 01/06/2025</div>
+    <div style="font-size:14px;color:var(--text);line-height:1.7;display:flex;flex-direction:column;gap:16px;">
+      <div><b>1. Aceitação dos Termos</b><br>Ao utilizar o aplicativo ENTREGUE, você concorda com estes Termos de Uso. Caso não concorde, não utilize o serviço.</div>
+      <div><b>2. Serviços Oferecidos</b><br>A ENTREGUE oferece uma plataforma de conexão entre clientes e entregadores autônomos para serviços de coleta e entrega de pequenas encomendas na área urbana.</div>
+      <div><b>3. Cadastro e Conta</b><br>Você é responsável por manter a confidencialidade de suas credenciais. O cadastro requer informações verídicas e um número de telefone válido.</div>
+      <div><b>4. Pagamentos</b><br>Os pagamentos são processados de forma segura via gateway certificado PCI-DSS. Taxas são exibidas antes da confirmação.</div>
+      <div><b>5. Cancelamentos</b><br>Cancelamentos gratuitos até 5 min após confirmação. Depois, taxa de R$5,00.</div>
+      <div><b>6. Privacidade</b><br>Seus dados são tratados conforme a LGPD.</div>
+    </div>
+    <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+      <button class="btn btn-green" onclick="toast('✅ Termos aceitos!','success');go('s1')" aria-label="Aceitar termos">✓ Li e Aceito os Termos</button>
+    </div>
+    <div style="height:30px;"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     APP ENTREGADOR
+══════════════════════════════════════════════════════════════ -->
+
+<!-- TELA r0 — LOGIN ENTREGADOR -->
+<div class="screen" id="r0">
+  <div style="background:linear-gradient(135deg,#1A1D23,#2D3148);padding:48px 30px 32px;">
+    <div style="font-size:48px;margin-bottom:12px;">🛵</div>
+    <h1 style="font-size:26px;font-weight:800;color:#fff;">Área do Entregador</h1>
+    <p style="color:rgba(255,255,255,.7);font-size:14px;margin-top:4px;">Faça login para começar a trabalhar</p>
+  </div>
+  <div style="flex:1;padding:28px 24px;display:flex;flex-direction:column;gap:16px;">
+    <div><div class="inp-label">Telefone ou CPF</div><input class="inp" type="tel" id="r0-phone" placeholder="+55 (11) 99999-9999" maxlength="19" oninput="phoneMask(this)" aria-label="Telefone ou CPF"></div>
+    <button class="btn btn-green" onclick="go('r1')" aria-label="Entrar">Entrar como Entregador →</button>
+    <button class="btn btn-outline" onclick="toast('📝 Cadastro em breve!','info')" aria-label="Quero ser entregador">Quero ser Entregador</button>
+    <button class="btn btn-gray" onclick="go('s0')" aria-label="Voltar">← Voltar</button>
+  </div>
+</div>
+
+<!-- TELA r1 — HOME ENTREGADOR -->
+<div class="screen" id="r1">
+  <div style="background:linear-gradient(135deg,#1A1D23,#2D3148);padding:20px;color:#fff;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div><div style="font-size:13px;color:rgba(255,255,255,.6);">Olá,</div><div style="font-size:20px;font-weight:800;">Marcos Silva 🛵</div></div>
+      <label class="switch" aria-label="Toggle online"><input type="checkbox" checked onchange="toggleOnline()"><span class="slider"></span></label>
+    </div>
+    <div id="r1-status" style="display:inline-block;padding:4px 14px;border-radius:20px;background:rgba(0,194,107,.25);color:#00C26B;font-size:13px;font-weight:700;border:1px solid rgba(0,194,107,.4);">● Online</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;">
+      <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;" id="r1-entregas">7</div><div style="font-size:10px;color:rgba(255,255,255,.6);">Entregas</div></div>
+      <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;color:#00C26B;" id="r1-ganhos">R$87</div><div style="font-size:10px;color:rgba(255,255,255,.6);">Ganhos</div></div>
+      <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;" id="r1-avaliacao">4.8⭐</div><div style="font-size:10px;color:rgba(255,255,255,.6);">Avaliação</div></div>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px;">📦 Pedidos Disponíveis</div>
+    <div class="order-card" style="border-left:4px solid var(--green);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div><span class="badge badge-green">Novo pedido</span><div style="font-weight:700;font-size:15px;margin-top:6px;">#ENT-2892</div></div>
+        <div style="text-align:right;"><div style="font-size:20px;font-weight:800;color:var(--green);">R$22,00</div><div style="font-size:11px;color:var(--sub);">7,4 km · ~35 min</div></div>
+      </div>
+      <div style="display:flex;gap:8px;font-size:13px;margin-bottom:12px;">
+        <div style="flex:1;background:var(--bg);border-radius:8px;padding:8px;"><div style="font-size:10px;color:var(--sub);">COLETA</div><div>Rua das Flores, 123</div></div>
+        <div style="display:flex;align-items:center;color:var(--sub);">→</div>
+        <div style="flex:1;background:var(--bg);border-radius:8px;padding:8px;"><div style="font-size:10px;color:var(--sub);">ENTREGA</div><div>Av. Paulista, 456</div></div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="recusarPedido()" class="btn btn-gray" style="flex:1;" aria-label="Recusar">✕ Recusar</button>
+        <button onclick="go('r2')" class="btn btn-green" style="flex:1;" aria-label="Aceitar">✓ Aceitar</button>
+      </div>
+    </div>
+    <div class="card" style="text-align:center;padding:12px;background:var(--green3);border-color:var(--green);">
+      <div style="font-size:12px;color:var(--sub);">Tempo online hoje</div>
+      <div style="font-size:24px;font-weight:800;color:var(--green);" id="r1-timer">02:14:33</div>
+    </div>
+  </div>
+  <nav class="bottom-nav" aria-label="Navegação entregador">
+    <div class="nav-item active" onclick="go('r1')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</div>
+    <div class="nav-item" onclick="go('r4')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>Histórico</div>
+    <div class="nav-item" onclick="go('r3')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>Entrega</div>
+    <div class="nav-item" onclick="go('r3g')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Ganhos</div>
+    <div class="nav-item" onclick="go('r5')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Perfil</div>
+  </nav>
+</div>
+
+<!-- TELA r2 — PEDIDO ACEITO -->
+<div class="screen" id="r2">
+  <div class="topbar" style="background:#1A1D23;border-color:#2D3148;">
+    <button class="back-btn" onclick="go('r1')" aria-label="Voltar">←</button>
+    <h2 style="color:#fff;font-size:17px;font-weight:700;">#ENT-2892</h2>
+    <span class="badge badge-yellow">🟡 Coletando</span>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
+    <div class="map-bg" style="border-radius:16px;height:200px;position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:48px;animation:bounce 2s infinite;">🛵</div>
+      <div style="position:absolute;bottom:12px;left:12px;right:12px;background:rgba(0,0,0,.7);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;text-align:center;">📍 Rua das Flores, 123 · 1,2 km · ~4 min</div>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:12px;">📦 Dados do Pedido</div>
+      <div style="display:flex;gap:10px;margin-bottom:10px;"><span style="font-size:18px;">📍</span><div><div style="font-size:11px;color:var(--sub);">COLETA</div><div style="font-size:14px;font-weight:600;">Rua das Flores, 123</div></div></div>
+      <div style="display:flex;gap:10px;"><span style="font-size:18px;">🎯</span><div><div style="font-size:11px;color:var(--sub);">ENTREGA</div><div style="font-size:14px;font-weight:600;">Av. Paulista, 456</div></div></div>
+    </div>
+    <div class="card" style="display:flex;align-items:center;gap:12px;">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--green3);display:flex;align-items:center;justify-content:center;font-size:20px;">👤</div>
+      <div style="flex:1;"><div style="font-weight:700;">Gabriel Santos</div><div style="font-size:12px;color:var(--sub);">⭐ 4.9 · Cliente há 8 meses</div></div>
+      <button onclick="callDriver()" style="background:var(--green3);border:none;padding:10px;border-radius:10px;cursor:pointer;font-size:18px;" aria-label="Ligar">📞</button>
+    </div>
+    <button onclick="go('r3')" class="btn btn-green" aria-label="Cheguei para coletar">📍 Cheguei para Coletar</button>
+    <button onclick="go('r1')" class="btn btn-gray" aria-label="Cancelar pedido">✕ Cancelar Pedido</button>
+  </div>
+</div>
+
+<!-- TELA r3 — CONFIRMAR COLETA / EM ENTREGA (sem código de coleta) -->
+<div class="screen" id="r3">
+  <div class="topbar" style="background:#1A1D23;border-color:#2D3148;">
+    <button class="back-btn" onclick="go('r1')" aria-label="Voltar ao início">←</button>
+    <h2 style="font-size:17px;font-weight:700;color:#fff;">#ENT-2892</h2>
+    <span class="badge badge-blue" id="r3-badge">🔵 Coletando</span>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
+    <div class="card" style="background:var(--green3);border-color:var(--green);text-align:center;padding:20px;">
+      <div style="font-size:40px;margin-bottom:8px;" id="r3-icon">📦</div>
+      <div style="font-size:16px;font-weight:700;" id="r3-status-text">Confirme a coleta do pacote</div>
+      <div style="font-size:13px;color:var(--sub);margin-top:4px;" id="r3-sub-text">Toque abaixo quando estiver com o pacote</div>
+    </div>
+    <!-- Destino sempre visível -->
+    <div class="card" id="r3-dest">
+      <div style="font-weight:700;margin-bottom:10px;">🎯 Destino da Entrega</div>
+      <div style="font-size:15px;font-weight:600;">Av. Paulista, 456</div>
+      <div style="font-size:13px;color:var(--sub);">Bela Vista, São Paulo — SP</div>
+      <div style="font-size:12px;color:var(--sub);margin-top:4px;">Apto 201 · Interfone: 201</div>
+    </div>
+    <!-- Ações: coleta → entrega (fluxo simplificado, sem código) -->
+    <div style="display:flex;flex-direction:column;gap:10px;" id="r3-actions">
+      <button onclick="confirmColeta()" class="btn btn-green" id="r3-collect-btn" aria-label="Confirmar coleta">✓ Confirmar Coleta</button>
+      <button onclick="confirmEntrega()" class="btn btn-outline" id="r3-deliver-btn" style="display:none;" aria-label="Confirmar entrega no destino">🎉 Confirmar Entrega no Destino</button>
+      <button onclick="goR('r1')" class="btn btn-danger" aria-label="Reportar problema">⚠️ Reportar Problema</button>
+    </div>
+  </div>
+</div>
+
+<!-- TELA r4 — HISTÓRICO ENTREGADOR -->
+<div class="screen" id="r4">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('r1')" aria-label="Voltar">←</button>
+    <h2>Histórico de Entregas</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;">
+    <div class="card" style="background:var(--green3);border-color:var(--green);">
+      <div style="font-size:13px;color:var(--sub);margin-bottom:8px;">Resumo de Junho/2025</div>
+      <div style="display:flex;justify-content:space-between;"><div><div style="font-size:24px;font-weight:800;color:var(--green);">R$1.847</div><div style="font-size:12px;color:var(--sub);">Total ganho</div></div><div style="text-align:center;"><div style="font-size:24px;font-weight:800;">87</div><div style="font-size:12px;color:var(--sub);">Entregas</div></div><div style="text-align:right;"><div style="font-size:24px;font-weight:800;">4.9⭐</div><div style="font-size:12px;color:var(--sub);">Avaliação</div></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="order-card" style="display:flex;align-items:center;gap:10px;padding:12px;">
+        <div style="width:40px;height:40px;background:#dcfce7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">✅</div>
+        <div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-weight:700;">#ENT-2890</span><span style="color:var(--green);font-weight:700;">+R$18,50</span></div><div style="font-size:12px;color:var(--sub);">Hoje 14:22 · 8,2 km · ⭐ 5.0</div></div>
+      </div>
+      <div class="order-card" style="display:flex;align-items:center;gap:10px;padding:12px;">
+        <div style="width:40px;height:40px;background:#dcfce7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">✅</div>
+        <div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-weight:700;">#ENT-2889</span><span style="color:var(--green);font-weight:700;">+R$31,00</span></div><div style="font-size:12px;color:var(--sub);">Hoje 12:45 · 12,1 km · ⭐ 4.5</div></div>
+      </div>
+      <div class="order-card" style="display:flex;align-items:center;gap:10px;padding:12px;">
+        <div style="width:40px;height:40px;background:#dcfce7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">✅</div>
+        <div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-weight:700;">#ENT-2887</span><span style="color:var(--green);font-weight:700;">+R$14,00</span></div><div style="font-size:12px;color:var(--sub);">Ontem 16:10 · 5,3 km · ⭐ 5.0</div></div>
+      </div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="go('r1')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</div>
+    <div class="nav-item active" onclick="go('r4')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>Histórico</div>
+    <div class="nav-item" onclick="go('r3')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>Entrega</div>
+    <div class="nav-item" onclick="go('r3g')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Ganhos</div>
+    <div class="nav-item" onclick="go('r5')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Perfil</div>
+  </nav>
+</div>
+
+<!-- TELA r3g — GANHOS ENTREGADOR -->
+<div class="screen" id="r3g">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('r1')" aria-label="Voltar">←</button>
+    <h2>Meus Ganhos</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;">
+    <div class="card" style="background:linear-gradient(135deg,#00C26B,#00A857);color:#fff;padding:24px;">
+      <div style="font-size:13px;opacity:.8;">Ganhos hoje</div>
+      <div style="font-size:36px;font-weight:900;" id="r3g-hoje">R$ 87,00</div>
+      <div style="font-size:13px;opacity:.8;margin-top:4px;">7 entregas · 31,4 km rodados</div>
+    </div>
+    <div class="astats">
+      <div class="astat-card"><div style="font-size:20px;font-weight:800;color:var(--green);">R$1.847</div><div style="font-size:11px;color:var(--sub);">Este mês</div></div>
+      <div class="astat-card"><div style="font-size:20px;font-weight:800;">87</div><div style="font-size:11px;color:var(--sub);">Entregas/mês</div></div>
+      <div class="astat-card"><div style="font-size:20px;font-weight:800;color:var(--green);">R$21</div><div style="font-size:11px;color:var(--sub);">Média/entrega</div></div>
+      <div class="astat-card"><div style="font-size:20px;font-weight:800;">4.9⭐</div><div style="font-size:11px;color:var(--sub);">Avaliação</div></div>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:12px;">📊 Ganhos da Semana</div>
+      <div style="display:flex;align-items:flex-end;gap:6px;height:80px;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:var(--green);border-radius:4px 4px 0 0;width:100%;height:60%;"></div><div style="font-size:10px;color:var(--sub);">Seg</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:var(--green);border-radius:4px 4px 0 0;width:100%;height:80%;"></div><div style="font-size:10px;color:var(--sub);">Ter</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:var(--green);border-radius:4px 4px 0 0;width:100%;height:50%;"></div><div style="font-size:10px;color:var(--sub);">Qua</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:var(--green);border-radius:4px 4px 0 0;width:100%;height:90%;"></div><div style="font-size:10px;color:var(--sub);">Qui</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:var(--green);border-radius:4px 4px 0 0;width:100%;height:70%;"></div><div style="font-size:10px;color:var(--sub);">Sex</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:var(--green);border-radius:4px 4px 0 0;width:100%;height:100%;"></div><div style="font-size:10px;color:var(--sub);">Sáb</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:var(--border);border-radius:4px 4px 0 0;width:100%;height:30%;"></div><div style="font-size:10px;color:var(--sub);">Dom</div></div>
+      </div>
+    </div>
+    <button class="btn btn-outline" onclick="toast('💳 Saque: R$1.847,00 transferido em 1 dia útil!','success')" aria-label="Solicitar saque">💳 Solicitar Saque</button>
+  </div>
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="go('r1')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</div>
+    <div class="nav-item" onclick="go('r4')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>Histórico</div>
+    <div class="nav-item" onclick="go('r3')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>Entrega</div>
+    <div class="nav-item active" onclick="go('r3g')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Ganhos</div>
+    <div class="nav-item" onclick="go('r5')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Perfil</div>
+  </nav>
+</div>
+
+<!-- TELA r5 — PERFIL ENTREGADOR -->
+<div class="screen" id="r5">
+  <div style="background:linear-gradient(135deg,#1A1D23,#2D3148);padding:40px 20px 28px;color:#fff;">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:28px;border:3px solid rgba(0,194,107,.4);">🧑</div>
+      <div>
+        <div style="font-size:20px;font-weight:800;">Marcos Silva</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.7);">+55 (11) 97777-8888</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.7);">Honda CG 150 · ABC-1234</div>
+        <span class="badge badge-green" style="margin-top:4px;display:inline-block;">⭐ 4.8 · Verificado</span>
+      </div>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;">
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Status</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:20px;">🟢</span><span style="flex:1;font-size:15px;">Disponível para Entregas</span>
+        <label class="switch" aria-label="Toggle disponibilidade"><input type="checkbox" checked onchange="toggleOnline()"><span class="slider"></span></label>
+      </div>
+      <div onclick="go('r3g')" style="display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;" role="button" aria-label="Ver ganhos"><span style="font-size:20px;">💰</span><span style="flex:1;font-size:15px;">Meus Ganhos</span><span style="color:var(--sub);">›</span></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:20px;">🌙</span><span style="flex:1;font-size:15px;">Modo Escuro</span>
+        <label class="switch" aria-label="Alternar modo escuro"><input type="checkbox" id="r5-dark" onchange="toggleDark()"><span class="slider"></span></label>
+      </div>
+      <div onclick="go('s14')" style="display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;" role="button" aria-label="Suporte"><span style="font-size:20px;">❓</span><span style="flex:1;font-size:15px;">Suporte</span><span style="color:var(--sub);">›</span></div>
+    </div>
+    <button class="btn btn-danger" onclick="goR('r0')" aria-label="Sair da conta">🚪 Sair da Conta</button>
+    <div style="height:16px;"></div>
+  </div>
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="go('r1')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Início</div>
+    <div class="nav-item" onclick="go('r4')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>Histórico</div>
+    <div class="nav-item" onclick="go('r3')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>Entrega</div>
+    <div class="nav-item" onclick="go('r3g')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Ganhos</div>
+    <div class="nav-item active" onclick="go('r5')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Perfil</div>
+  </nav>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAINEL ADMIN
+══════════════════════════════════════════════════════════════ -->
+
+<!-- TELA a0 — LOGIN ADMIN -->
+<div class="screen" id="a0">
+  <div style="background:linear-gradient(135deg,#1d4ed8,#1e40af);padding:48px 30px 32px;">
+    <div style="font-size:48px;margin-bottom:12px;">🔧</div>
+    <h1 style="font-size:26px;font-weight:800;color:#fff;">Painel Admin</h1>
+    <p style="color:rgba(255,255,255,.7);font-size:14px;margin-top:4px;">ENTREGUE — Sistema de Gestão</p>
+  </div>
+  <div style="flex:1;padding:28px 24px;display:flex;flex-direction:column;gap:16px;">
+    <div><div class="inp-label">E-mail admin</div><input class="inp" type="email" placeholder="admin@entregue.app" aria-label="E-mail admin"></div>
+    <div><div class="inp-label">Senha</div><input class="inp" type="password" placeholder="••••••••" aria-label="Senha admin"></div>
+    <button class="btn" style="background:#1d4ed8;color:#fff;" onclick="go('a1')" aria-label="Entrar">Entrar no Painel →</button>
+    <button class="btn btn-gray" onclick="go('s0')" aria-label="Voltar">← Voltar</button>
+  </div>
+</div>
+
+<!-- TELA a1 — DASHBOARD ADMIN -->
+<div class="screen" id="a1">
+  <div style="background:linear-gradient(135deg,#1d4ed8,#1e40af);padding:20px;color:#fff;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div><div style="font-size:13px;opacity:.7;">Painel Admin</div><div style="font-size:20px;font-weight:800;">ENTREGUE 📦</div></div>
+      <button onclick="go('s0')" style="background:rgba(255,255,255,.15);border:none;padding:8px 14px;border-radius:10px;color:#fff;cursor:pointer;font-size:13px;font-weight:600;" aria-label="Sair do admin">Sair</button>
+    </div>
+    <div style="font-size:13px;opacity:.7;margin-top:4px;">Atualizado agora · Sexta, 06 Jun 2025</div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;">
+    <div class="astats">
+      <div class="astat-card"><div style="font-size:24px;font-weight:900;color:var(--green);">2.847</div><div style="font-size:11px;color:var(--sub);">Entregas hoje</div><div style="font-size:10px;color:var(--green);margin-top:2px;">▲ +12%</div></div>
+      <div class="astat-card"><div style="font-size:24px;font-weight:900;color:#3B82F6;">342</div><div style="font-size:11px;color:var(--sub);">Entregadores ativos</div><div style="font-size:10px;color:#3B82F6;margin-top:2px;">▲ +8</div></div>
+      <div class="astat-card"><div style="font-size:24px;font-weight:900;color:var(--green);">R$52k</div><div style="font-size:11px;color:var(--sub);">Receita hoje</div><div style="font-size:10px;color:var(--green);margin-top:2px;">▲ +9%</div></div>
+      <div class="astat-card"><div style="font-size:24px;font-weight:900;color:var(--warn);">23</div><div style="font-size:11px;color:var(--sub);">Pendentes</div><div style="font-size:10px;color:var(--warn);margin-top:2px;">▼ −5</div></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select class="inp" style="flex:1;" onchange="filterAdmin(this.value)" aria-label="Filtrar entregas"><option value="all">Todas as entregas</option><option value="em_andamento">Em andamento</option><option value="entregue">Concluídas</option><option value="cancelado">Canceladas</option><option value="pendente">Pendentes</option></select>
+      <button onclick="toast('📋 Formulário em breve!','info')" class="btn btn-green btn-sm" style="width:auto;white-space:nowrap;" aria-label="Nova entrega">+ Novo</button>
+    </div>
+    <div id="admin-list">
+      <div class="card" style="padding:12px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-weight:700;">#ENT-2892</span><span class="atag" style="background:#fef3c7;color:#d97706;">Em andamento</span></div>
+        <div style="font-size:12px;color:var(--sub);margin-bottom:8px;">Jardins → Bela Vista · Marcos S. · R$22,00</div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="toast('🗺️ Rastreando #ENT-2892 — Marcos a 1,2km do destino','info')" class="btn btn-outline btn-sm" style="flex:1;">Ver</button>
+          <button onclick="toast('❌ #ENT-2892 cancelada pela administração!','warn')" class="btn btn-sm" style="flex:1;background:#fee2e2;color:#dc2626;border:none;">Cancelar</button>
+        </div>
+      </div>
+      <div class="card" style="padding:12px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-weight:700;">#ENT-2891</span><span class="atag" style="background:#dbeafe;color:#1d4ed8;">A caminho</span></div>
+        <div style="font-size:12px;color:var(--sub);margin-bottom:8px;">Flores → Paulista · Marcos S. · R$18,50</div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="go('s8')" class="btn btn-outline btn-sm" style="flex:1;">Ver</button>
+          <button onclick="toast('❌ #ENT-2891 cancelada!','warn')" class="btn btn-sm" style="flex:1;background:#fee2e2;color:#dc2626;border:none;">Cancelar</button>
+        </div>
+      </div>
+      <div class="card" style="padding:12px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-weight:700;">#ENT-2890</span><span class="atag" style="background:#dcfce7;color:#16a34a;">Concluída</span></div>
+        <div style="font-size:12px;color:var(--sub);margin-bottom:8px;">Flores → Paulista · Marcos S. · R$18,50</div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="go('s18')" class="btn btn-outline btn-sm" style="flex:1;">Ver</button>
+          <button onclick="toast('💳 Pagamento de R$13,88 (75%) liberado para Marcos S.!','success')" class="btn btn-sm" style="flex:1;background:#dcfce7;color:#16a34a;border:none;">Pagar</button>
+        </div>
+      </div>
+    </div>
+    <!-- Entregadores -->
+    <div style="font-size:15px;font-weight:700;margin-top:4px;">👥 Entregadores</div>
+    <div class="agrid">
+      <div class="card" style="padding:12px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:16px;">🧑</div>
+          <div><div style="font-size:13px;font-weight:700;">Marcos S.</div><div style="font-size:11px;color:var(--green);">● Online</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--sub);">87 entregas · ⭐ 4.8</div>
+        <div style="display:flex;gap:4px;margin-top:8px;">
+          <button onclick="toast('👤 Perfil: 347 entregas, ⭐4.8, CPF verificado','info')" class="btn btn-outline btn-sm" style="flex:1;font-size:11px;">Ver</button>
+          <button onclick="toast('⚠️ Marcos Silva suspenso temporariamente!','warn')" class="btn btn-sm" style="flex:1;font-size:11px;background:#fee2e2;color:#dc2626;border:none;">Suspender</button>
+        </div>
+      </div>
+      <div class="card" style="padding:12px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:#3B82F6;display:flex;align-items:center;justify-content:center;font-size:16px;">👩</div>
+          <div><div style="font-size:13px;font-weight:700;">Ana P.</div><div style="font-size:11px;color:var(--sub);">● Offline</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--sub);">52 entregas · ⭐ 4.9</div>
+        <div style="display:flex;gap:4px;margin-top:8px;">
+          <button onclick="toast('👤 Perfil: 52 entregas, ⭐4.9, aprovada','info')" class="btn btn-outline btn-sm" style="flex:1;font-size:11px;">Ver</button>
+          <button onclick="toast('✅ Ana Paula reativada!','success')" class="btn btn-sm" style="flex:1;font-size:11px;background:#dcfce7;color:#16a34a;border:none;">Reativar</button>
+        </div>
+      </div>
+    </div>
+    <!-- Aprovações -->
+    <div style="font-size:15px;font-weight:700;">📋 Aprovações Pendentes</div>
+    <div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--warn);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🧑</div>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:700;">Carlos M. • Novo entregador</div><div style="font-size:11px;color:var(--sub);">CNH enviada · Antecedentes: Ok</div></div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="toast('✅ Carlos M. aprovado!','success')" class="btn btn-sm" style="background:#dcfce7;color:#16a34a;border:none;" aria-label="Aprovar">✓</button>
+        <button onclick="toast('❌ Carlos M. reprovado!','warn')" class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:none;" aria-label="Reprovar">✕</button>
+      </div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+  <nav class="bottom-nav">
+    <div class="nav-item active" onclick="go('a1')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Dashboard</div>
+    <div class="nav-item" onclick="go('a2')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>Relatórios</div>
+    <div class="nav-item" onclick="go('a3')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Config</div>
+    <div class="nav-item" onclick="go('s0')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>Sair</div>
+  </nav>
+</div>
+
+<!-- TELA a2 — RELATÓRIOS -->
+<div class="screen" id="a2">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('a1')" aria-label="Voltar">←</button>
+    <h2>Relatórios</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;">
+    <div class="astats">
+      <div class="astat-card"><div style="font-size:20px;font-weight:800;color:var(--green);">R$52k</div><div style="font-size:11px;color:var(--sub);">Receita hoje</div></div>
+      <div class="astat-card"><div style="font-size:20px;font-weight:800;color:#3B82F6;">2.847</div><div style="font-size:11px;color:var(--sub);">Entregas/dia</div></div>
+      <div class="astat-card"><div style="font-size:20px;font-weight:800;color:var(--green);">R$21</div><div style="font-size:11px;color:var(--sub);">Ticket médio</div></div>
+      <div class="astat-card"><div style="font-size:20px;font-weight:800;">4.7⭐</div><div style="font-size:11px;color:var(--sub);">Satisfação</div></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <select class="inp" style="flex:1;min-width:140px;" aria-label="Período"><option>Hoje</option><option>Últimos 7 dias</option><option>Este mês</option><option>Este ano</option></select>
+      <select class="inp" style="flex:1;min-width:140px;" aria-label="Comparar"><option>Comparar com ontem</option><option>Comparar com semana passada</option><option>Sem comparação</option></select>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-weight:700;">📈 Receita e Pedidos</div><span class="badge badge-green">+8,2%</span></div>
+      <div style="display:flex;align-items:flex-end;gap:6px;height:100px;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:#3B82F6;border-radius:4px 4px 0 0;width:100%;height:55%;"></div><div style="font-size:10px;color:var(--sub);">Seg</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:#3B82F6;border-radius:4px 4px 0 0;width:100%;height:70%;"></div><div style="font-size:10px;color:var(--sub);">Ter</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:#3B82F6;border-radius:4px 4px 0 0;width:100%;height:85%;"></div><div style="font-size:10px;color:var(--sub);">Qua</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:var(--green);border-radius:4px 4px 0 0;width:100%;height:90%;"></div><div style="font-size:10px;color:var(--sub);">Qui</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:var(--green);border-radius:4px 4px 0 0;width:100%;height:75%;"></div><div style="font-size:10px;color:var(--sub);">Sex</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:var(--green);border-radius:4px 4px 0 0;width:100%;height:100%;"></div><div style="font-size:10px;color:var(--sub);">Sáb</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="background:var(--border);border-radius:4px 4px 0 0;width:100%;height:30%;"></div><div style="font-size:10px;color:var(--sub);">Dom</div></div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:16px;margin-top:10px;font-size:12px;"><div style="display:flex;align-items:center;gap:6px;"><div style="width:10px;height:10px;background:var(--green);border-radius:2px;"></div>Receita</div><div style="display:flex;align-items:center;gap:6px;"><div style="width:10px;height:10px;background:#3B82F6;border-radius:2px;"></div>Pedidos</div></div>
+    </div>
+    <!-- Entregas do dia -->
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:12px;">📦 Entregas do Dia (06/06/2025)</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:700;">Concluídas</div><div style="font-size:11px;color:var(--sub);">82% do total</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:var(--green);">2.335</div><div style="font-size:11px;color:var(--sub);">de 2.847</div></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:700;">Em andamento</div><div style="font-size:11px;color:var(--sub);">Em rota de entrega</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:#3B82F6;">489</div><div style="font-size:11px;color:var(--sub);">17%</div></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:700;">Canceladas</div><div style="font-size:11px;color:var(--sub);">Por cliente ou sistema</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:var(--danger);">23</div><div style="font-size:11px;color:var(--sub);">0,8%</div></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:13px;font-weight:700;">Pendentes</div><div style="font-size:11px;color:var(--sub);">Aguardando entrega</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:var(--warn);">0</div><div style="font-size:11px;color:var(--sub);">0%</div></div></div>
+      </div>
+    </div>
+    <!-- Entregadores do dia -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-weight:700;">🏍️ Entregadores do Dia</div><select class="inp" style="width:auto;padding:6px 10px;font-size:12px;" aria-label="Filtrar"><option>Todos</option><option>Online</option><option>Top avaliados</option></select></div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--border);"><div style="width:34px;height:34px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">🧑</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Marcos Silva</div><div style="font-size:11px;color:var(--sub);">8 entregas · 31,4 km · ⭐ 4.8</div></div><span class="badge badge-green">R$109</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--border);"><div style="width:34px;height:34px;border-radius:50%;background:#3B82F6;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">👩</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Ana Paula</div><div style="font-size:11px;color:var(--sub);">6 entregas · 22,8 km · ⭐ 4.9</div></div><span class="badge badge-green">R$87</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;border-radius:50%;background:var(--warn);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">👨</div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Carlos Mendes</div><div style="font-size:11px;color:var(--sub);">5 entregas · 18,2 km · ⭐ 4.7</div></div><span class="badge badge-green">R$74</span></div>
+      </div>
+    </div>
+    <button onclick="toast('📥 Relatório exportado!','success')" class="btn btn-outline" aria-label="Exportar CSV">📥 Exportar CSV</button>
+  </div>
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="go('a1')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Dashboard</div>
+    <div class="nav-item active" onclick="go('a2')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>Relatórios</div>
+    <div class="nav-item" onclick="go('a3')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Config</div>
+    <div class="nav-item" onclick="go('s0')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>Sair</div>
+  </nav>
+</div>
+
+<!-- TELA a3 — CONFIGURAÇÕES -->
+<div class="screen" id="a3">
+  <div class="topbar">
+    <button class="back-btn" onclick="go('a1')" aria-label="Voltar">←</button>
+    <h2>Configurações</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Aparência</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🌙</span><span style="font-size:15px;">Modo Escuro</span></div>
+        <label class="switch" aria-label="Alternar modo escuro"><input type="checkbox" onchange="toggleDark()"><span class="slider"></span></label>
+      </div>
+      <div onclick="toast('🔔 Notificações em breve!','info')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;cursor:pointer;" role="button">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🔔</span><span style="font-size:15px;">Notificações</span></div><span style="color:var(--sub);">›</span>
+      </div>
+      <div onclick="toast('🌍 Idioma: apenas PT-BR','info')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;cursor:pointer;" role="button">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🌍</span><span style="font-size:15px;">Idioma</span></div><span style="color:var(--sub);">PT-BR ›</span>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Taxas e Valores</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div><div class="inp-label">Taxa base (R$)</div><input class="inp" type="number" value="5.90" aria-label="Taxa base"></div>
+        <div><div class="inp-label">Valor por km (R$)</div><input class="inp" type="number" value="2.50" aria-label="Valor por km"></div>
+        <div><div class="inp-label">Taxa mínima (R$)</div><input class="inp" type="number" value="12.00" aria-label="Taxa mínima"></div>
+      </div>
+      <button onclick="toast('💾 Taxas salvas!','success')" class="btn btn-green" style="margin-top:12px;">Salvar Taxas</button>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Área de Atuação</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div><div class="inp-label">Cidade principal</div><input class="inp" type="text" value="São Paulo — SP" aria-label="Cidade"></div>
+        <div><div class="inp-label">Raio máximo (km)</div><input class="inp" type="number" value="25" aria-label="Raio"></div>
+      </div>
+      <button onclick="toast('💾 Área salva!','success')" class="btn btn-green" style="margin-top:12px;">Salvar Área</button>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Conta Admin</div>
+      <div onclick="toast('👤 Perfil admin em breve!','info')" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;" role="button"><span style="font-size:20px;">👤</span><span style="flex:1;font-size:15px;">Meu Perfil</span><span style="color:var(--sub);">›</span></div>
+      <div onclick="toast('🔑 Alterar senha em breve!','info')" style="display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;" role="button"><span style="font-size:20px;">🔑</span><span style="flex:1;font-size:15px;">Alterar Senha</span><span style="color:var(--sub);">›</span></div>
+    </div>
+    <button onclick="go('s0')" class="btn btn-danger" aria-label="Sair do painel">🚪 Sair do Painel</button>
+  </div>
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="go('a1')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Dashboard</div>
+    <div class="nav-item" onclick="go('a2')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>Relatórios</div>
+    <div class="nav-item active" onclick="go('a3')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Config</div>
+    <div class="nav-item" onclick="go('s0')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>Sair</div>
+  </nav>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let currentScreen = 's0';
+let timerInterval = null;
+let timerSeconds = 8073;
+let smsTimerInterval = null;
+let smsSeconds = 30;
+let searchTimeout = null;
+let currentRating = 0;
+let isDark = false;
+let r3Collected = false;
+let screenHistory = [];
+let onlineStatus = true;
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function go(id) {
+  const prev = document.getElementById(currentScreen);
+  const next = document.getElementById(id);
+  if (!next) return;
+  if (prev) prev.classList.remove('active');
+  next.classList.add('active');
+  screenHistory.push(currentScreen);
+  currentScreen = id;
+  onScreenEnter(id);
+  try { localStorage.setItem('entregue_screen', id); } catch(e){}
+}
+
+function goR(id) {
+  if (id === 'r0') { r3Collected = false; resetR3(); }
+  go(id);
+}
+
+function onScreenEnter(id) {
+  if (id === 's2') startSMSTimer();
+  if (id === 's5') startSearchAnimation();
+  if (id === 'r1') startDelivererTimer();
+  if (id === 's3') updateHomeETA();
+  if (id === 's15') resetRating();
+  // Atualiza ícone/título da tela de chat conforme origem
+  if (id === 's12') {
+    // já tem valores padrão
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// TOAST NOTIFICATIONS
+// ═══════════════════════════════════════════════════
+function toast(msg, type='info', duration=3500) {
+  const icons = { success:'✅', info:'ℹ️', warn:'⚠️', error:'❌' };
+  const colors = { success:'#16a34a', info:'#2563eb', warn:'#d97706', error:'#dc2626' };
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.style.borderLeft = `4px solid ${colors[type]||colors.info}`;
+  el.innerHTML = `<span>${icons[type]||icons.info}</span><span style="flex:1;">${msg}</span>`;
+  el.onclick = () => el.remove();
+  container.appendChild(el);
+  setTimeout(() => { el.classList.add('hide'); setTimeout(() => el.remove(), 300); }, duration);
+}
+
+// ═══════════════════════════════════════════════════
+// INPUT MASKS
+// ═══════════════════════════════════════════════════
+function phoneMask(el) {
+  let v = el.value.replace(/\D/g,'');
+  if (v.length > 11) v = v.slice(0,11);
+  if (v.length === 0) { el.value = ''; return; }
+  let f = '+55 ';
+  if (v.length >= 2) f += '(' + v.slice(0,2) + ') ';
+  else f += '(' + v;
+  if (v.length >= 7) f += v.slice(2,7) + '-' + v.slice(7);
+  else if (v.length >= 2) f += v.slice(2);
+  el.value = f;
+}
+
+function cpfMask(el) {
+  let v = el.value.replace(/\D/g,'');
+  if (v.length > 11) v = v.slice(0,11);
+  if (v.length <= 3) { el.value = v; return; }
+  if (v.length <= 6) { el.value = v.slice(0,3) + '.' + v.slice(3); return; }
+  if (v.length <= 9) { el.value = v.slice(0,3) + '.' + v.slice(3,6) + '.' + v.slice(6); return; }
+  el.value = v.slice(0,3) + '.' + v.slice(3,6) + '.' + v.slice(6,9) + '-' + v.slice(9);
+}
+
+// ═══════════════════════════════════════════════════
+// SMS OTP
+// ═══════════════════════════════════════════════════
+function smsNext(el, idx) {
+  if (el.value.length === 1 && idx < 3) { document.getElementById('sms' + (idx+1)).focus(); }
+  const code = [0,1,2,3].map(i => document.getElementById('sms'+i).value).join('');
+  if (code.length === 4) setTimeout(doVerify, 300);
+}
+
+function startSMSTimer() {
+  if (smsTimerInterval) clearInterval(smsTimerInterval);
+  smsSeconds = 30;
+  const timerEl = document.getElementById('s2-timer');
+  const resendEl = document.getElementById('s2-resend');
+  const counterEl = document.getElementById('s2-counter');
+  if (timerEl) timerEl.style.display = 'block';
+  if (resendEl) resendEl.style.display = 'none';
+  if (counterEl) counterEl.textContent = smsSeconds;
+  smsTimerInterval = setInterval(() => {
+    smsSeconds--;
+    if (counterEl) counterEl.textContent = smsSeconds;
+    if (smsSeconds <= 0) {
+      clearInterval(smsTimerInterval);
+      if (timerEl) timerEl.style.display = 'none';
+      if (resendEl) resendEl.style.display = 'block';
+    }
+  }, 1000);
+}
+
+function resendSMS() { toast('📱 Código reenviado!','success'); startSMSTimer(); }
+
+// ═══════════════════════════════════════════════════
+// AUTH FLOWS
+// ═══════════════════════════════════════════════════
+function doLogin() {
+  const phone = document.getElementById('s1-phone').value.trim();
+  if (!phone || phone.length < 14) {
+    document.getElementById('s1-phone').classList.add('error');
+    toast('Digite um número válido','error');
+    return;
+  }
+  document.getElementById('s1-phone').classList.remove('error');
+  const display = document.getElementById('s2-phone-display');
+  if (display) display.textContent = 'Enviamos um código para ' + phone;
+  [0,1,2,3].forEach(i => { const el = document.getElementById('sms'+i); if(el) el.value=''; });
+  toast('📱 Código enviado para ' + phone,'success');
+  go('s2');
+}
+
+function doVerify() {
+  const code = [0,1,2,3].map(i => document.getElementById('sms'+i)?.value || '').join('');
+  if (code !== '1234') {
+    toast('❌ Código inválido. Use 1234','error');
+    [0,1,2,3].forEach(i => { const el = document.getElementById('sms'+i); if(el){ el.style.borderColor='var(--danger)'; el.value=''; }});
+    document.getElementById('sms0')?.focus();
+    return;
+  }
+  clearInterval(smsTimerInterval);
+  toast('✅ Login realizado!','success');
+  try { localStorage.setItem('entregue_user', 'Gabriel Santos'); } catch(e){}
+  go('s3');
+}
+
+function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const phone = document.getElementById('reg-phone').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const cpf = document.getElementById('reg-cpf').value.trim();
+  const terms = document.getElementById('reg-terms').checked;
+  let valid = true;
+  if (!name) { document.getElementById('reg-name').classList.add('error'); valid = false; }
+  else document.getElementById('reg-name').classList.remove('error');
+  if (!phone || phone.length < 14) { document.getElementById('reg-phone').classList.add('error'); valid = false; }
+  else document.getElementById('reg-phone').classList.remove('error');
+  if (!email || !email.includes('@')) { document.getElementById('reg-email').classList.add('error'); valid = false; }
+  else document.getElementById('reg-email').classList.remove('error');
+  if (!cpf || cpf.length < 14) { document.getElementById('reg-cpf').classList.add('error'); valid = false; }
+  else document.getElementById('reg-cpf').classList.remove('error');
+  if (!terms) { toast('Aceite os Termos de Uso','error'); valid = false; }
+  if (!valid) { toast('Preencha todos os campos','error'); return; }
+  toast('🎉 Conta criada! Bem-vindo(a), ' + name.split(' ')[0] + '!','success');
+  try { localStorage.setItem('entregue_user', name); } catch(e){}
+  const s3name = document.getElementById('s3-name');
+  if (s3name) s3name.textContent = name.split(' ')[0] + ' 👋';
+  const s10name = document.getElementById('s10-name');
+  if (s10name) s10name.textContent = name;
+  go('s3');
+}
+
+function logout() { toast('👋 Até logo!','info'); setTimeout(() => go('s0'), 800); }
+
+// ═══════════════════════════════════════════════════
+// SEARCH ANIMATION (s5)
+// ═══════════════════════════════════════════════════
+function startSearchAnimation() {
+  const bar = document.getElementById('s5-bar');
+  const status = document.getElementById('s5-status');
+  const sub = document.getElementById('s5-sub');
+  const icon = document.getElementById('s5-icon');
+  if (!bar) return;
+  bar.style.width = '0%';
+  bar.style.transition = 'none';
+  setTimeout(() => { bar.style.transition = 'width 2.5s linear'; bar.style.width = '70%'; }, 100);
+  if (searchTimeout) clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    if (currentScreen !== 's5') return;
+    if (status) status.textContent = 'Entregador encontrado!';
+    if (sub) sub.textContent = 'Marcos Silva está se aproximando...';
+    if (icon) icon.textContent = '🎉';
+    bar.style.width = '100%';
+    setTimeout(() => { if (currentScreen === 's5') go('s6'); }, 1500);
+  }, 3000);
+}
+
+// ═══════════════════════════════════════════════════
+// DELIVERY TIMER (r1)
+// ═══════════════════════════════════════════════════
+function startDelivererTimer() {
+  if (timerInterval) return;
+  timerInterval = setInterval(() => {
+    if (currentScreen !== 'r1' && currentScreen !== 'r4' && currentScreen !== 'r5' && currentScreen !== 'r3g') return;
+    timerSeconds++;
+    const el = document.getElementById('r1-timer');
+    if (el) el.textContent = formatTime(timerSeconds);
+  }, 1000);
+}
+
+function formatTime(s) {
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  return [h,m,sec].map(v => String(v).padStart(2,'0')).join(':');
+}
+
+// ═══════════════════════════════════════════════════
+// HOME ETA (s3)
+// ═══════════════════════════════════════════════════
+function updateHomeETA() {
+  let min = 8, sec = 32;
+  const el = document.getElementById('s3-eta');
+  if (!el) return;
+  clearInterval(window.etaInterval);
+  window.etaInterval = setInterval(() => {
+    if (currentScreen !== 's3') { clearInterval(window.etaInterval); return; }
+    sec--;
+    if (sec < 0) { sec = 59; min--; }
+    if (min < 0) { clearInterval(window.etaInterval); return; }
+    el.textContent = String(min).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  }, 1000);
+}
+
+// ═══════════════════════════════════════════════════
+// CHAT
+// ═══════════════════════════════════════════════════
+function sendMsg() {
+  const inp = document.getElementById('chat-inp');
+  const msg = inp?.value.trim();
+  if (!msg) return;
+  appendMsg(msg, 'sent');
+  inp.value = '';
+  setTimeout(() => {
+    const replies = ['Ok! 👍','Entendido!','Certo, estou a caminho.','Combinado! 🛵'];
+    appendMsg(replies[Math.floor(Math.random()*replies.length)], 'recv');
+  }, 1200);
+}
+
+function sendQuick(text) { const inp = document.getElementById('chat-inp'); if(inp) inp.value = text; sendMsg(); }
+
+function appendMsg(text, type) {
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble ' + type;
+  bubble.textContent = text;
+  const time = document.createElement('div');
+  const now = new Date();
+  time.style.cssText = 'font-size:10px;color:var(--sub);' + (type==='sent'?'text-align:right':'');
+  time.textContent = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  container.appendChild(bubble);
+  container.appendChild(time);
+  container.scrollTop = container.scrollHeight;
+}
+
+// ═══════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════
+function clearNotifs() {
+  const ids = ['notif1','notif2','notif3','notif4'];
+  ids.forEach(id => { const el = document.getElementById(id); if(el){ el.style.animation='toastOut .3s ease forwards'; setTimeout(()=>el.remove(),300); }});
+  setTimeout(() => { const empty = document.getElementById('notif-empty'); if(empty) empty.style.display='block'; }, 500);
+  toast('🗑️ Notificações limpas','info');
+}
+
+// ═══════════════════════════════════════════════════
+// FAQ
+// ═══════════════════════════════════════════════════
+function toggleAccordion(header) {
+  const body = header.nextElementSibling;
+  const icon = header.querySelector('.acc-icon');
+  const isOpen = body.classList.contains('open');
+  document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.acc-icon').forEach(i => i.style.transform = 'rotate(0deg)');
+  document.querySelectorAll('.accordion-header').forEach(h => h.setAttribute('aria-expanded','false'));
+  if (!isOpen) { body.classList.add('open'); if(icon) icon.style.transform='rotate(180deg)'; header.setAttribute('aria-expanded','true'); }
+}
+
+// ═══════════════════════════════════════════════════
+// STAR RATING
+// ═══════════════════════════════════════════════════
+function setRating(val) {
+  currentRating = val;
+  const stars = document.querySelectorAll('#rating-stars .star');
+  stars.forEach((s,i) => { s.textContent = i < val ? '★' : '☆'; s.style.color = i < val ? '#F59E0B' : 'var(--sub)'; });
+}
+
+function resetRating() { currentRating = 0; document.querySelectorAll('#rating-stars .star').forEach(s => { s.textContent='☆'; s.style.color='var(--sub)'; }); }
+
+function toggleTag(btn) {
+  const isActive = btn.classList.contains('btn-green');
+  btn.classList.toggle('btn-green', !isActive);
+  btn.classList.toggle('btn-outline', isActive);
+}
+
+function submitRating() {
+  if (!currentRating) { toast('Selecione pelo menos 1 estrela!','warn'); return; }
+  toast('⭐ Avaliação enviada! Obrigado!','success');
+  setTimeout(() => go('s3'), 800);
+}
+
+// ═══════════════════════════════════════════════════
+// PAYMENTS
+// ═══════════════════════════════════════════════════
+function selectPay(id) {
+  ['pay1','pay2','pay3'].forEach(p => { const el = document.getElementById(p); if(el) el.classList.remove('selected'); });
+  const el = document.getElementById(id);
+  if (el) el.classList.add('selected');
+  toast('✓ Pagamento selecionado','success');
+}
+
+// ═══════════════════════════════════════════════════
+// ADDRESSES
+// ═══════════════════════════════════════════════════
+function deleteAddr(id) { const el = document.getElementById(id); if(!el) return; el.style.animation='toastOut .3s ease forwards'; setTimeout(()=>el.remove(),300); toast('🗑️ Endereço removido','info'); }
+function addAddr() { const form = document.getElementById('new-addr-form'); if(form) form.style.display = form.style.display==='none'?'block':'none'; }
+function saveAddr() {
+  const label = document.getElementById('new-addr-label')?.value;
+  const street = document.getElementById('new-addr-street')?.value.trim();
+  const city = document.getElementById('new-addr-city')?.value.trim();
+  if (!street || !city) { toast('Preencha todos os campos!','error'); return; }
+  const icons = { Casa:'🏠', Trabalho:'🏢', Outro:'📍' };
+  const list = document.getElementById('s17');
+  const form = document.getElementById('new-addr-form');
+  const item = document.createElement('div');
+  item.className = 'addr-item card-hover';
+  const newId = 'addr_' + Date.now();
+  item.id = newId;
+  item.innerHTML = `<div style="font-size:22px;">${icons[label]||'📍'}</div><div style="flex:1;"><div style="font-size:14px;font-weight:700;">${label}</div><div style="font-size:12px;color:var(--sub);">${street} — ${city}</div></div><div style="display:flex;gap:6px;"><button onclick="toast('✏️ Editar em breve!','info')" style="background:var(--border);border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;">✏️</button><button onclick="deleteAddr('${newId}')" style="background:#fee2e2;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;">🗑️</button></div>`;
+  list.insertBefore(item, form);
+  form.style.display = 'none';
+  document.getElementById('new-addr-street').value = '';
+  document.getElementById('new-addr-city').value = '';
+  toast('✅ Endereço salvo!','success');
+}
+
+// ═══════════════════════════════════════════════════
+// DRIVER ACTIONS
+// ═══════════════════════════════════════════════════
+function callDriver() { toast('📞 Ligando para Marcos Silva...','info'); }
+
+// Fluxo simplificado: coleta → entrega, sem código
+function confirmColeta() {
+  r3Collected = true;
+  const badge = document.getElementById('r3-badge');
+  const icon = document.getElementById('r3-icon');
+  const status = document.getElementById('r3-status-text');
+  const sub = document.getElementById('r3-sub-text');
+  const collectBtn = document.getElementById('r3-collect-btn');
+  const deliverBtn = document.getElementById('r3-deliver-btn');
+  if (badge) { badge.textContent = '🟢 Pacote na mão'; badge.className = 'badge badge-green'; }
+  if (icon) icon.textContent = '📦✅';
+  if (status) status.textContent = 'Pacote coletado! Vá ao destino.';
+  if (sub) sub.textContent = 'Toque em "Confirmar Entrega" quando chegar';
+  if (collectBtn) collectBtn.style.display = 'none';
+  if (deliverBtn) deliverBtn.style.display = 'inline-flex';
+  toast('📦 Coleta confirmada! Agora vá ao destino.','success');
+}
+
+function confirmEntrega() {
+  toast('🎉 Entrega concluída! +R$22,00 adicionado ao seu saldo.','success');
+  const r1ganhos = document.getElementById('r1-ganhos');
+  const r1entregas = document.getElementById('r1-entregas');
+  if (r1ganhos) r1ganhos.textContent = 'R$109';
+  if (r1entregas) r1entregas.textContent = '8';
+  setTimeout(() => resetR3(), 600);
+  setTimeout(() => go('r1'), 800);
+}
+
+function resetR3() {
+  r3Collected = false;
+  const badge = document.getElementById('r3-badge');
+  const icon = document.getElementById('r3-icon');
+  const status = document.getElementById('r3-status-text');
+  const sub = document.getElementById('r3-sub-text');
+  const collectBtn = document.getElementById('r3-collect-btn');
+  const deliverBtn = document.getElementById('r3-deliver-btn');
+  if (badge) { badge.textContent = '🔵 Coletando'; badge.className = 'badge badge-blue'; }
+  if (icon) icon.textContent = '📦';
+  if (status) status.textContent = 'Confirme a coleta do pacote';
+  if (sub) sub.textContent = 'Toque abaixo quando estiver com o pacote';
+  if (collectBtn) collectBtn.style.display = 'inline-flex';
+  if (deliverBtn) deliverBtn.style.display = 'none';
+}
+
+function recusarPedido() { toast('✕ Pedido recusado. Próximo pedido em breve...','warn'); }
+function toggleOnline() {
+  onlineStatus = !onlineStatus;
+  const statusEl = document.getElementById('r1-status');
+  if (statusEl) {
+    statusEl.textContent = onlineStatus ? '● Online' : '○ Offline';
+    statusEl.style.color = onlineStatus ? '#00C26B' : 'var(--sub)';
+  }
+  toast(onlineStatus ? '🟢 Você está online!' : '⭕ Você está offline','info');
+}
+
+function simulateDelivered() { toast('🎉 Entrega #ENT-2891 concluída!','success'); setTimeout(() => go('s15'), 1000); }
+
+// ═══════════════════════════════════════════════════
+// DARK MODE
+// ═══════════════════════════════════════════════════
+function toggleDark() {
+  isDark = !isDark;
+  document.body.setAttribute('data-dark', isDark ? '1' : '0');
+  document.querySelectorAll('#dark-toggle, #r5-dark').forEach(el => { el.checked = isDark; });
+  try { localStorage.setItem('entregue_dark', isDark ? '1' : '0'); } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════
+// ADMIN FILTER
+// ═══════════════════════════════════════════════════
+function filterAdmin(val) { toast('🔍 Filtro: ' + val.replace('_',' '),'info'); }
+
+// ═══════════════════════════════════════════════════
+// REFERRAL
+// ═══════════════════════════════════════════════════
+function shareReferral() {
+  const code = 'ENTREGUE' + Math.floor(Math.random()*9000+1000);
+  toast('🎁 Código: ' + code + ' · Ganhe R$10!','success', 5000);
+}
+
+// ═══════════════════════════════════════════════════
+// RIPPLE EFFECT
+// ═══════════════════════════════════════════════════
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.btn');
+  if (!btn) return;
+  const ripple = document.createElement('span');
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  ripple.className = 'ripple';
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+  ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+  btn.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 600);
+});
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+(function init() {
+  try {
+    const dark = localStorage.getItem('entregue_dark');
+    if (dark === '1') { isDark = true; document.body.setAttribute('data-dark','1'); document.querySelectorAll('#dark-toggle,#r5-dark').forEach(el => el.checked = true); }
+    const user = localStorage.getItem('entregue_user');
+    if (user) {
+      const s3n = document.getElementById('s3-name'); if(s3n) s3n.textContent = user.split(' ')[0] + ' 👋';
+      const s10n = document.getElementById('s10-name'); if(s10n) s10n.textContent = user;
+    }
+  } catch(e){}
+  timerInterval = null;
+})();
+</script>
+</body>
+</html>
